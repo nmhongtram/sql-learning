@@ -34,3 +34,32 @@ FROM ...
 - Delete all data from a table
 1st way: `DELETE FROM table_name`
 2nd way: `TRUNCATE TABLE table_name` => reset the table, faster than the 1st way
+## SQL Course 8
+There are 2 ways to combine tables:
+- Combine rows: SET Operators - Same columns
+	+ `UNION`
+	+ `UNION ALL`
+	+ `EXCEPT (MINUS)`
+	+ `INTERSECT`
+- Combine columns: JOINs - Key column
+	- `INNER JOIN`
+	- `FULL JOIN`
+	- `LEFT JOIN`
+	- `RIGHT JOIN`
+When to use `JOINs`: 3 use cases
+1. Recombine Data - Big Picture: Inner Join, Left Join, Full Join
+2. Data Enrichment - Extra Info: Left Join
+3. Check Existence - Filtering: Inner Join, Left Join + WHERE, Full Join + WHERE
+Basic Types of `JOIN`:
+- NO Join
+- Inner Join
+- Left Join
+- Right Join
+- Full Join
+Advanced Types of `JOIN`:
+- Left Anti Join
+- Right Anti Join
+- Full Anti Join
+- Cross Join
+
+
