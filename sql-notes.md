@@ -49,17 +49,46 @@ There are 2 ways to combine tables:
 When to use `JOINs`: 3 use cases
 1. Recombine Data - Big Picture: Inner Join, Left Join, Full Join
 2. Data Enrichment - Extra Info: Left Join
-3. Check Existence - Filtering: Inner Join, Left Join + WHERE, Full Join + WHERE
+3. Check Existence - Filtering: Inner Join, Left Join + WHERE (Left Anti Join), Full Join + WHERE (Full Anti Join)
 Basic Types of `JOIN`:
 - NO Join
 - Inner Join
 - Left Join
 - Right Join
 - Full Join
+## SQL Course 9
 Advanced Types of `JOIN`:
-- Left Anti Join
-- Right Anti Join
-- Full Anti Join
-- Cross Join
+- Left Anti Join: Return Row from Left that has NO MATCH in Right
+```
+-- Get all customers who haven't place any order.
+SELECT *
+FROM customers AS c
+LEFT JOIN orders AS o
+ON c.id = o.customer_id
+WHERE o.customer_id IS NULL
+```
+- Right Anti Join: Return Row from Right that has NO MATCH in Left
+```
+-- Get all orders without matching customers.
+SELECT *
+FROM customers AS c
+RIGHT JOIN orders AS o
+ON c.id = o.customer_id
+WHERE c.id IS NULL
+```
+- Full Anti Join: Return Only Rows that DON'T MATCH in either Tables
+```
+-- Find customers without orders and orders without customers.
+SELECT *
+FROM customers AS c
+FULL JOIN orders AS o
+ON c.id = o.customer_id
+WHERE c.id IS NULL
+AND o.customer_id IS NULL
+```
+- Cross Join: Combine Every Row from Left with Every Row from Right 
+=> All possible combinations --*Cartesian Join*--
+=> No condition is needed
+
 
 
