@@ -1,6 +1,6 @@
-## SQL Course 3
+## SQL Course 3: SQL Installation
 - There are 2 ways to create a database: the 1st way is executing the script, and the 2nd way is place the script in the SQL DBMS and restore database. (review video SQL Course 3 to recheck)
-## SQL Course 4
+## SQL Course 4: SQL SELECT Query
 - Bad practice - `DISTINCT` keyword can slow down the query, so just use when really need it
 - `SELECT TOP 3` 
 - Coding Order
@@ -24,7 +24,7 @@ ORDER BY Col1 ASC
 6. ORDER BY
 7. TOP
 ```
-## SQL Course 6
+## SQL Course 6: SQL DML Commands
 - Insert into a tale from `SELECT` query: 
 ```
 INSERT INTO table_name (column_list)
@@ -34,7 +34,7 @@ FROM ...
 - Delete all data from a table
 1st way: `DELETE FROM table_name`
 2nd way: `TRUNCATE TABLE table_name` => reset the table, faster than the 1st way
-## SQL Course 8
+## SQL Course 8: SQL Joins Basic 
 There are 2 ways to combine tables:
 - Combine rows: SET Operators - Same columns
 	+ `UNION`
@@ -56,7 +56,7 @@ Basic Types of `JOIN`:
 - Left Join
 - Right Join
 - Full Join
-## SQL Course 9
+## SQL Course 9: Advanced SQL JOINs
 Advanced Types of `JOIN`:
 - Left Anti Join: Return Row from Left that has NO MATCH in Right
 ```
@@ -89,6 +89,8 @@ AND o.customer_id IS NULL
 - Cross Join: Combine Every Row from Left with Every Row from Right 
 => All possible combinations --*Cartesian Join*--
 => No condition is needed
+## SQL Course 10: Joining Multiple Tables in SQL
+
 
 
 
