@@ -124,5 +124,50 @@ AND o.customer_id IS NULL
 - **Use aliases for columns**: When columns with the same name exist in different tables (e.g., `first_name` from both `customers` and `employees`), **rename them using aliases** (e.g., `customer_first_name`, `employee_first_name`) for clarity in results.
 - **Always specify table or alias before column name**: This prevents ambiguity and errors, especially when column names are duplicated across tables (e.g., `O.order_ID`, `C.first_name`).
 - **Double-check join keys**: **Ensure you use the correct columns for join conditions** (e.g., `O.customer_ID = C.customer_ID`), as incorrect keys will lead to meaningless results.
+## SQL Course 26: Why You Need These 5 SQL Techniques in Your SQL Project | Architecture 
+
+Five SQL techniques used to reduce and optimize the complexity of SQL queries, along with the reasons for their necessity and an overview of database architecture. The five techniques are:
+
+- Subqueries
+- Common Table Expressions (CTE)
+- Views
+- Temporary Tables
+- `CREATE TABLE AS SELECT` (CTAS)
+
+**1. Why These Techniques Are Needed**
+
+In real-world projects, SQL queries become very complex due to multiple users with different roles (e.g., financial analysts, risk managers, data engineers, data scientists, data analysts) accessing the database and executing complex analytical or extraction queries. These complex scenarios introduce several challenges:
+
+- **Redundant Logic:** Different users often write queries that contain **repeated logic and redundant code**, leading to duplicated effort and potential inconsistencies if not everyone implements the logic correctly.
+- **Performance Issues:** Without optimization, complex queries can lead to **significant performance problems**. Queries might take hours or minutes to execute, affecting overall project efficiency.
+- **Complexity for Users:** The underlying database often has a **complex data model** designed for specific applications, which includes many tables and relationships. Analysts and other users need to understand this model to write queries, leading to frequent questions for database experts and **stressing the database team with repetitive explanations**.
+- **Database Stress:** Repeated execution of large, complex queries can cause **immense stress on the database**, potentially leading to its slowdown or even bringing it down.
+- **Data Security:** Giving **direct access to physical database tables** to all users poses a security risk, as sensitive data might be exposed. It's crucial to protect tables, columns, and rows from unauthorized access.
+
+The five SQL techniques mentioned (subqueries, CTE, views, temporary tables, CTAS) are presented as solutions to these common issues in data projects.
+
+**2. Database Architecture (Simplified Overview)**
+
+Understanding the database architecture is crucial to grasp how these techniques work behind the scenes. The architecture involves two main sides:
+
+- **Client Side:** This is where the user writes and sends an SQL query.
+- **Server Side:** This is where the database lives and processes queries. Key components on the server side include:
+    - **Database Engine:** The **"brain" of the database**, responsible for handling operations like storing, retrieving, and managing data. It processes every query executed.
+    - **Storage:** Databases utilize different types of storage:
+        - **Disk Storage:** Acts as **long-term, permanent memory** where data is stored persistently, even when the system is off. It can store a lot of data but is **slow for reading and writing**.
+        - **Cache:** Serves as **short-term, temporary memory** that holds frequently used data for quick access. It is **very fast** for data retrieval compared to disk but stores data only for a short period.
+    - **Types of Storage Areas in Databases:** There are typically three main types:
+        - **User Data Storage:** This holds the **main content and actual data** that users interact with and care about (e.g., tables like `customers`, `employees`, `orders`).
+        - **System Catalog (Metadata):** This is the **internal storage for the database's own information**, acting as a blueprint that tracks everything about the database itself.
+            - **Metadata** is defined as **"data about data"**. For example, for a `customers` table, its metadata would include table name, column names (`customer_ID`, `first_name`), data types (`int`, `varchar`), length, and nullability.
+            - This information can be explored by users through a special hidden schema called `information_schema` in SQL Server, which contains built-in views (e.g., `information_schema.tables`, `information_schema.columns`). The system catalog helps the database quickly find the structure of tables and columns, and allows users to browse the database's catalog.
+        - **Temporary Data Storage:** This is a **temporary space** used by the database for short-term tasks like processing queries or sorting data. Once these tasks are completed, this storage is cleaned up.
+            - Temporary tables are found within a special system database called `tempdb`, which is typically only accessible to database administrators in real projects.
+
+**3. Simple Query Execution Example:**
+
+When a simple `SELECT` query is sent from the client to the server, the database engine first checks if the required data is in the **cache** for fast retrieval. If not, it retrieves the data from **disk storage**, executes the query, and sends the results back to the client.
+
+The understanding of these challenges and the database architecture provides the foundation for appreciating the importance and function of the five SQL techniques that will be explored further.
 
 
