@@ -1,4 +1,5 @@
 ## SQL Project 1: Intro to SQL Project
+
 Introduce an **exciting project to build a modern SQL data warehouse from scratch**. The project aims to not only teach how to build such a data warehouse but also how these types of projects are **implemented in real-world companies**.
 
 **Instructor Background:**
@@ -24,7 +25,9 @@ Introduce an **exciting project to build a modern SQL data warehouse from scratc
 
 - The project primarily uses **SQL Server**.
 - However, if you prefer other databases like **MySQL or Postgres, you can follow along just fine**.
+
 ## SQL Project 2: Data Warehouse Basics Explained | Data Engineer Portfolio Project
+
 Provide a **fundamental understanding of what a data warehouse is** and why companies choose to build such data management systems before diving into specific tools and cool technologies.
 
 **What is a Data Warehouse?** According to Bill Inmon, often called the "father of the data warehouse," a data warehouse is a **subject-oriented, integrated, time-variant, and nonvolatile collection of data designed to support the Management's decision-making process**.
@@ -64,7 +67,9 @@ Provide a **fundamental understanding of what a data warehouse is** and why comp
 - They are **cleaned, chopped, organized, and stored** (preparation phase, like ETL's transformation).
 - When an order (report/analysis request) comes in, the **prepared ingredients** are quickly grabbed to create a perfect dish (report/analysis).
 - The data warehouse is like the kitchen where raw data is cleaned, sorted, and stored, ready to be served up exactly when needed.
+
 ## SQL Project 3: ETL Process Explained | Data Engineer Portfolio Project
+
 A comprehensive explanation of the **ETL process (Extract, Transform, Load)**, which is a core component of data warehousing projects. Building the ETL component typically consumes almost **90% of the effort** in such projects.
 
 **What is ETL?** ETL is the process of moving data from a **source system** to a **target destination** (e.g., database tables or a data warehouse).
@@ -127,6 +132,7 @@ A comprehensive explanation of the **ETL process (Extract, Transform, Load)**, w
     - Historization: **SCD1 (overwrite)** will be used, meaning the content of the data warehouse will be updated.
 
 The video concludes the theoretical part of understanding data warehousing and prepares the audience to set up their environment for the project.
+
 ## SQL Project 4: Notion Project Plan & Set Up Your Environment | Data Engineer Portfolio Project
 
 **Setting up the project environment** and creating an initial **project plan using Notion**. The instructor emphasizes that project planning is a crucial, often overlooked, step for successful complex projects like data warehouses.
@@ -188,6 +194,7 @@ The initial plan for the project will cover the following key steps, which will 
     - Write the first script to create the database and schemas.
 
 The video concludes by setting the stage to begin the "Requirements Analysis" epic, which is the first step in the project.
+
 ## SQL Project 5: Design Data Architecture for Your Data Warehouse | Data Engineer Portfolio Project
 
 This video focuses on **designing data architecture** and **building a data warehouse** as part of a data engineering project.
@@ -280,3 +287,143 @@ This video focuses on **designing data architecture** and **building a data ware
     2. **Data Warehouse Layer**: Contains the **Bronze, Silver, and Gold layers**. Each layer is detailed with its **main objective** (e.g., raw data, clean & standardized data, business-ready data), **object type** (table/view), **load method** (batch processing, full load, truncate and insert), **transformation types** (none, basic, business), and **data modeling approach** (as-is, star schema, snowflake, aggregated objects). A database icon visually represents these layers.
     3. **Consume Layer**: Represents end-users and tools that consume the data, such as **Business Intelligence and Reporting tools like Power BI or Tableau**, ad-hoc analysis via **SQL queries**, and for **machine learning purposes**. Arrows indicate the flow of data from left to right through the layers.
 - **Technology**: **SQL Server** is the chosen technology for building this data warehouse.
+- **Using Draw.io & Flaticon**
+
+## SQL Project 6: Project Setup - Git, Naming & Database Creation | Data Engineer Portfolio Project
+
+This video focuses on **setting up a data engineering project**, covering essential initial steps like defining a project structure, establishing naming conventions, setting up a Git repository, and creating the initial database and schemas in SQL Server.
+
+Here's a breakdown of the key topics:
+
+- **Project Structure and Layers**:
+    
+    - The project follows a **three-layer architecture**: Bronze, Silver, and Gold.
+    - Major epics are defined as building each layer: "Build Bronze Layer," "Build Silver Layer," and "Build Gold Layer".
+    - Tasks within each epic generally follow a pattern: analyzing, coding, testing, documenting, and committing work to the Git repository.
+    
+- **Defining Naming Conventions**:
+    
+    - **Importance**: Defining a naming convention early prevents inconsistency and chaos, especially with multiple developers. It saves time by avoiding the need to rename everything later.
+    - **When to Define**: At the early phase of the project.
+    - **General Rules**:
+        - **Snake case** is chosen for this project: all letters in a word are lowercase, and words are separated by an underscore (e.g., `customer_info`).
+        - **Decide on a single language** for the project (e.g., English).
+        - **Avoid using SQL reserved words** as object names (e.g., do not name a table "table"). These rules apply to everything: tables, columns, stored procedures, etc..
+    - **Specific Rules for Table Names per Layer**:
+        - **Bronze Layer**: Tables follow the `SourceSystem_Entity` rule (e.g., `CRM_CustomerInfo`). The name starts with the source system (e.g., CRM, ERP), followed by an underscore, and then the entity or table name.
+        - **Silver Layer**: Exactly the same as the Bronze layer, as no renaming or new data modeling occurs.
+        - **Gold Layer**: Since new data models are built and multiple sources are integrated, the source system name is not used. Names must be **meaningful, business-aligned**, starting with a **category prefix**. Examples include:
+            - `Fact_Sales` (for fact tables).
+            - `Dim_Customers` or `Dim_Products` (for dimension tables, using `dim_`).
+            - `Agg_Customers` or `Agg_SalesMonthly` (for aggregated tables, using `agg_`).
+    - **Specific Rules for Column Names**:
+        - **Surrogate Keys (in Gold Layer)**: Follow the pattern `TableName_Key` (e.g., `customer_key` for a surrogate key in the `Dim_Customers` table).
+        - **Technical/Metadata Columns**: Columns added by the data engineer (not from source systems) should start with the prefix `dw_` (e.g., `dw_LoadDate`) to distinguish them from original columns.
+    - **Specific Rules for Stored Procedures**: ETL scripts responsible for loading data should start with `load_` followed by the layer name (e.g., `load_bronze`, `load_silver`).
+    
+- **Git Repository Creation and Structure**:
+    
+    - **Purpose of Git**: Provides a safe place to store code, track changes, enable team collaboration, allow rollbacks if something goes wrong, and serves as a portfolio piece for job applications.
+    - **Creation Steps**:
+        - Create a new repository (e.g., "SQL Data Warehouse Project").
+        - Add a description (e.g., "Building a modern data warehouse with SQL Server").
+        - Choose visibility (public/private).
+        - Add a **README file**.
+        - Select a license, such as the **MIT license**, which allows freedom of use and modification of code.
+    - **Repository Structure**: Create main folders such as `datasets`, `documents`, `scripts`, and `tests`.
+    - **README File**: Acts as the homepage of the repository, written in **Markdown (.md)** format. It should include a project description, welcome message, project requirements, licensing information, and a section about the author.
+    
+- **Database and Schema Creation in SQL Server**:
+    
+    - **Creating the Database**:
+        - First, switch to the `master` system database using `USE master`.
+        - Then, create the new database using `CREATE DATABASE DataWarehouse`.
+        - Switch to the newly created database using `USE DataWarehouse`.
+    - **Creating Schemas**:
+        - Schemas act as **folders or containers** to organize objects within the database.
+        - Three schemas are created, one for each layer: `CREATE SCHEMA bronze`, `CREATE SCHEMA silver`, `CREATE SCHEMA gold`.
+        - The `GO` command is used as a **separator** in SQL scripts, ensuring each command is fully executed before the next.
+    - **Best Practices for Database Scripts**:
+        - **Check for existing database**: Before creating a database, it's crucial to check if it already exists and drop it if it does, to avoid errors during recreation (e.g., `IF EXISTS(SELECT 1 FROM sys.databases WHERE name = 'DataWarehouse') DROP DATABASE DataWarehouse;`).
+        - **Add a header comment**: Each script should start with a header comment explaining its purpose, as this helps anyone (including yourself later) understand the script's function without detailed memory.
+        - **Include warnings**: Especially for scripts that can destroy data (like dropping a database), warnings should be clearly stated in the header comments to prevent accidental data loss.
+        - **Add inline comments**: Use comments within the code to explain specific sections or steps.
+    - **Committing the Work**: Once the database and schemas are created, the SQL script (e.g., `init_database.sql`) is committed to the `scripts` folder in the Git repository.
+
+## SQL Project 7: Build The Bronze Layer - Data Ingestion | Data Engineer Portfolio Project
+
+This video focuses on **building the Bronze Layer** in a data engineering project, emphasizing the critical initial steps of data ingestion and best practices for creating a robust ETL (Extract, Transform, Load) process. The Bronze layer is characterized by a **full load strategy** (truncating and then inserting data), **no data transformations**, and **no creation of new data models**.
+
+### 1. Analyzing the Source System
+
+Before writing any code, it's crucial to **understand the source system**. This involves:
+
+- **Interviewing source system experts** to gain knowledge about the data's nature, which helps design correct scripts and avoid mistakes.
+- **Asking common questions**, including:
+    - **Business Context & Ownership**: Understanding the story behind the data and who is responsible for it (e.g., IT departments).
+    - **Business Process Supported**: What business process the data supports (e.g., customer transactions, supply chain, finance reporting) to understand its importance.
+    - **System & Data Documentation**: Checking for existing documentation (e.g., data models, column descriptions, data catalogs), which serves as learning material and saves time.
+    - **Technical Architecture & Technology Stack**: How data is stored (on-premise like SQL Server, Oracle; or cloud like Azure, AWS).
+    - **Integration Capabilities**: How data can be extracted (e.g., APIs, Kafka, file extraction, direct database connection).
+    - **Data Extraction Strategy**: Whether to perform an **incremental load or a full load**. For the Bronze layer, a full load (truncate and insert) is chosen.
+    - **Data Scope & Historization**: What data is needed (e.g., all data, last 10 years) and if historical data is already in the source or needs to be built in the data warehouse.
+    - **Expected Size of Extracts**: Understanding data volume (megabytes, gigabytes, terabytes) to ensure the right tools and platform are used.
+    - **Data Volume Limitations & Performance Impact**: Assessing if large extracts might degrade the source system's performance, especially for older systems. Being responsible not to impact database performance if direct access is granted.
+    - **Authentication & Authorization**: How to access data (tokens, keys, passwords).
+- **Understanding metadata and schema** of the incoming data by asking technical experts or exploring the data itself.
+
+### 2. Building Bronze Layer Tables (DDL Scripts)
+
+- **Creating Tables**: Tables are created in the `bronze` schema within the `DataWarehouse` database.
+- **Naming Conventions**:
+    - **Table names** in the Bronze layer follow the `SourceSystem_Entity` rule (e.g., `CRM_CustomerInfo`, `ERP_ProductInfo`). This allows quick identification of the source system.
+    - **Column names** in the Bronze layer are **one-to-one** exactly like the source system's column names (e.g., `ID`, `Key`, `CreateDate`).
+- **Robust DDL Scripts**: Include a check to `DROP TABLE` if it `EXISTS` before `CREATE TABLE`. This prevents errors when re-running scripts and ensures a clean table creation from scratch. SQL Server uses `IF OBJECT_ID IS NOT NULL DROP TABLE` where 'U' signifies a user-defined table.
+
+### 3. Data Ingestion using BULK INSERT
+
+- The **`BULK INSERT`** method is chosen for loading data from files (like CSVs) into the database. It's **very fast** because it loads massive amounts of data in one operation, unlike row-by-row inserts.
+- **Syntax and Specifications**:
+    - `BULK INSERT [Schema].[TableName] FROM 'FilePath'`.
+    - The `WITH` clause is used to define file handling specifications:
+        - `FIRSTROW = 2`: Skips the header row in the file, as it's not actual data.
+        - `FIELDTERMINATOR = ','`: Specifies the delimiter (separator) between fields (e.g., comma, semicolon, pipe, hash).
+        - `TABLOCK`: An optional setting to improve performance by locking the entire table during the load operation.
+- **Data Quality Checks (Post-Ingestion)**:
+    - Verify that data exists in each column and is in the correct column to detect common data shifting errors (e.g., `FirstName` appearing in `Key` column).
+    - **Compare row counts**: The number of rows in the loaded Bronze table should be one less than the source file due to skipping the header.
+- **Full Load Implementation**: To ensure data is always refreshed and duplicates are avoided, a `TRUNCATE TABLE` command is executed immediately before `BULK INSERT`. This empties the table and loads the entire file content from scratch, making the Bronze layer a **refreshable copy** of the source.
+
+### 4. Stored Procedure Creation and Best Practices
+
+To facilitate daily execution and organization, all bronze layer loading scripts are encapsulated within a **Stored Procedure**.
+
+- **Naming Convention**: The stored procedure is named `load_bronze` and is placed in the `bronze` schema (e.g., `bronze.load_bronze`).
+- **Improved Messaging**: The stored procedure includes `PRINT` statements to provide clear output messages during execution:
+    - Main message: "Loading the bronze layer".
+    - Section separators for each source system (e.g., "Loading CRM tables", "Loading ERP tables").
+    - Action-specific messages for each table (e.g., "Truncating table...", "Inserting data into..."). This improves debugging clarity.
+- **Error Handling (`TRY...CATCH`)**:
+    - The core logic is wrapped in a `BEGIN TRY...END TRY` block.
+    - A `BEGIN CATCH...END CATCH` block is used to handle errors. In case of failure, it can print informative messages like `ERROR_MESSAGE()`, `ERROR_NUMBER()`, and `ERROR_STATE()` functions. It can also be designed to log errors to a table.
+- **Performance Monitoring (Load Duration)**:
+    - **Importance**: Measuring execution time is crucial for large data warehouses to identify bottlenecks and optimize performance.
+    - **Implementation**:
+        - Declare `start_time` and `end_time` variables of `DATETIME` type.
+        - Set `start_time = GETDATE()` before beginning the load for each table and `end_time = GETDATE()` after its completion.
+        - Calculate the duration using `DATEDIFF(second, start_time, end_time)` and print the `Load Duration` for each table.
+        - Similarly, calculate and print the `Total Load Duration` for the entire bronze layer batch. While local execution might show 0 seconds due to speed, in real-world scenarios with different servers and larger data, this will be significant.
+
+### 5. Data Flow Diagram and Git Commit
+
+- **Data Flow Diagram (DFD)**:
+    - A simple visual diagram is created to **map the flow of data**, showing where it originates and where it lands.
+    - It helps create **data lineage**, which is essential for analyzing issues and understanding the origin of data across multiple layers.
+    - The diagram visually connects source systems (e.g., CRM, ERP folders with their respective files) to the corresponding tables within the Bronze layer.
+- **Committing Code to Git Repository**:
+    - The developed DDL scripts and the stored procedure script are committed to the Git repository.
+    - A structured folder system is used (e.g., `scripts/bronze/`).
+    - Each script includes a **header comment** explaining its purpose, parameters (if any), and an example of how to execute it.
+    - Using Git provides a safe place to store code, track changes, enable collaboration, allow rollbacks, and serve as a portfolio piece.
+
+This comprehensive approach demonstrates how to **engineer a complete ETL pipeline**, focusing not just on loading data but also on organization, debugging, performance measurement, and error handling for a professional data warehouse.
