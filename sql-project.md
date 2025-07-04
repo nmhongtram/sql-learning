@@ -427,3 +427,98 @@ To facilitate daily execution and organization, all bronze layer loading scripts
     - Using Git provides a safe place to store code, track changes, enable collaboration, allow rollbacks, and serve as a portfolio piece.
 
 This comprehensive approach demonstrates how to **engineer a complete ETL pipeline**, focusing not just on loading data but also on organization, debugging, performance measurement, and error handling for a professional data warehouse.
+
+## SQL Project 8: Build The Silver Layer - Clean & Transform Data | Data Engineer Portfolio Project
+
+This lecture focuses on **building the Silver Layer** in a data engineering project, which is the crucial stage for **cleansing and transforming raw data** from the Bronze layer to prepare it for further analysis and reporting. The main objective of the Silver layer is to have **clean and standardized data**.
+
+The process for building the Silver Layer is structured into several key phases:
+### 1. Analyzing and Exploring Data in the Bronze Layer
+
+Before initiating any coding for the Silver layer, it is paramount to **explore and understand the content of the data** residing in the Bronze layer. Unlike the Bronze layer, where the focus was solely on data ingestion, the Silver layer requires a deep understanding of the data's content, relationships between tables, and potential quality issues.
+
+Key aspects of this analysis include:
+
+- **Understanding Data Content and Relationships**: Exploring tables (e.g., `CRM_CustomerInfo`, `ERP_ProductInfo`, `CRM_SalesDetails`) to grasp their content and how they relate to each other. This involves querying a sample of data, such as `SELECT TOP 1000` rows, to avoid impacting the system with large queries.
+- **Creating Documentation (Data Model/Integration Model)**: It is highly recommended to visually document the data model and the relationships discovered. This helps to consolidate understanding and serves as a reference, preventing forgetting details after a while. Examples from the lecture show documenting `CRM_CustomerInfo`, `ERP_ProductInfo`, and `CRM_SalesDetails` tables, including their primary keys and how they connect (e.g., `Product Key` for `SalesDetails` to `ProductInfo`, `Customer ID` for `SalesDetails` to `CustomerInfo`, `Customer Key` from `ERP_Cost` to `CRM_CustomerInfo`). It was also observed that `ERP_ProductInfo` contains historical data for product costs, indicated by `Start` and `End` dates.
+- **Identifying Data Characteristics**: This includes noting low cardinality columns (e.g., `Marital Status`, `Gender`, `Product Line`, `Country`, `Category`, `Subcategory`, `Maintenance`) where consistency checks are crucial, and identifying columns that can be used for joins (e.g., `Product Key`, `Customer ID`).
+
+### 2. Building Silver Layer Tables (DDL Scripts)
+
+The Silver layer will contain tables that are generally **identical in structure to the Bronze layer**, with few modifications.
+
+- **Naming Conventions**: Tables reside in the `silver` schema.
+- **Full Load Strategy**: The way data is loaded from Bronze to Silver is a **full load**, meaning the table is `TRUNCATE`d and then new data is `INSERT`ed. This ensures data is always refreshed and prevents duplicates.
+- **Metadata Columns**: A crucial addition to every table in the Silver layer (and generally in a data warehouse) are **metadata columns**. These columns are not from source systems but are added by data engineers to provide extra information for each record.
+    - **Purpose**: They are a great tool for tracking data issues, understanding data lineage (from which file/source data originated), identifying gaps, and facilitating debugging.
+    - **Naming Convention**: They follow a `DW_` prefix (e.g., `DW_create_date`).
+    - **Automation**: Columns like `DW_create_date` are often automatically populated by the database using `GETDATE()` as a `DEFAULT` value, so they don't need to be specified in ETL scripts.
+- **DDL Modification**: While largely copied from Bronze, DDL scripts for Silver tables may need adjustments for:
+    - **Schema change**: `bronze.TableName` becomes `silver.TableName`.
+    - **Adding metadata columns** (e.g., `DW_create_date DATETIME2 DEFAULT GETDATE()`).
+    - **New derived columns**: If new columns are derived during transformation (e.g., `Category ID` from `Product Key`), they must be added to the DDL.
+    - **Data type changes**: If data types are transformed (e.g., `DATETIME` to `DATE`, `INTEGER` to `DATE`), the DDL must reflect these changes.
+
+### 3. Data Transformation and Cleansing
+
+This is the core activity of the Silver layer. The approach is to first **detect data quality issues** in the Bronze layer, and **only then write transformations** to fix them. The lecture covers various types of data transformations:
+
+- **1. Removing Duplicates**:
+    - **Issue**: Primary keys with duplicate values or `NULL`s.
+    - **Detection**: Aggregate the primary key and use `HAVING COUNT > 1` or `OR PrimaryKey IS NULL`.
+    - **Transformation**: Use **Window Functions** like `ROW_NUMBER() OVER (PARTITION BY PrimaryKey ORDER BY CreateDate DESC)`. This allows picking the **latest record** for a duplicate primary key by sorting by a timestamp (e.g., `Creation Date`). This is a type of **data filtering**.
+- **2. Handling Unwanted Spaces (Trimming)**:
+    - **Issue**: Leading or trailing spaces in string values.
+    - **Detection**: Compare the original string to its `TRIM()`ed version (`ColumnName <> TRIM(ColumnName)`).
+    - **Transformation**: Apply the `TRIM()` function to the string columns (e.g., `TRIM(FirstName)`, `TRIM(LastName)`).
+- **3. Data Normalization/Standardization**:
+    - **Issue**: Coded values or abbreviations (e.g., 'F' for Female, 'M' for Male, 'DE' for Germany).
+    - **Transformation**: Use `CASE WHEN` statements to **map coded values to meaningful, user-friendly descriptions** (e.g., `CASE WHEN Gender = 'F' THEN 'Female' WHEN Gender = 'M' THEN 'Male' ELSE 'Not Available' END`). It's a good practice to use `UPPER()` and `TRIM()` on the source column within the `CASE WHEN` to handle varying cases or hidden spaces. A "quick form" of `CASE WHEN` can be used for simple direct mappings.
+- **4. Handling Missing Values**:
+    - **Issue**: `NULL`s, empty strings, or zeros in columns where they are not expected.
+    - **Transformation**: Replace missing values with a **standard default value** (e.g., 'Not Available', 'Unknown', '0'). Functions like `ISNULL()` can be used for this. For zeros, `NULLIF()` can convert them to `NULL` before further handling.
+- **5. Deriving New Columns**:
+    - **Issue**: Needed information is embedded within an existing column or needs to be calculated.
+    - **Transformation**: Create new columns based on calculations or transformations of existing ones. Examples include:
+        - Extracting `Category ID` from `Product Key` using `SUBSTRING()` (`SUBSTRING(ProductKey, 1, 5)`).
+        - Extracting the rest of the `Product Key` dynamically using `SUBSTRING()` and `LEN()` (`SUBSTRING(ProductKey, 7, LEN(ProductKey))`).
+        - Removing unwanted parts of an ID like 'NAS' prefix using `SUBSTRING()` with `CASE WHEN`.
+- **6. Data Type Casting**:
+    - **Issue**: Incorrect data types (e.g., dates stored as integers, datetime with unnecessary time component).
+    - **Transformation**: Convert data types using `CAST()`. For example, casting an `INTEGER` date (like `YYYYMMDD`) to `DATE` might require an intermediate `VARCHAR` cast in SQL Server (`CAST(CAST(OrderDate AS VARCHAR) AS DATE)`). Casting `DATETIME` to `DATE` to remove time components when only the date is relevant.
+- **7. Handling Invalid Data / Business Rules**:
+    - **Issue**: Data that violates business rules (e.g., negative costs, end dates before start dates, future birthdates, incorrect calculations like `Sales != Quantity * Price`).
+    - **Transformation**: Implement business logic using `CASE WHEN` and other functions to correct or flag invalid data. Examples include:
+        - Replacing negative costs with `0` or `NULL`.
+        - Fixing overlapping historical dates: using `LEAD()` window function to calculate the `EndDate` based on the `StartDate` of the _next_ record (minus one day) to ensure no overlaps. This is also an example of **data enrichment**, adding value to the data.
+        - Invalid date ranges (e.g., `OrderDate > ShippingDate`, `BirthDate > GETDATE()`) can be transformed to `NULL` or corrected based on rules.
+        - Recalculating `Sales` or `Price` based on the `Quantity * Price` rule, handling `NULL`s, zeros, or negative values. The `ABS()` function can convert negative numbers to positive for calculations. `NULLIF(Quantity, 0)` can prevent division by zero.
+        - Removing specific unwanted characters (e.g., hyphen in `ERP_Location`'s `CID`) using `REPLACE()`.
+
+After transformations, it's crucial to **re-check the data quality in the Silver layer** using the same quality checks performed on the Bronze layer. This validates that the transformations have successfully resolved the issues.
+
+### 4. Stored Procedure Creation and Best Practices
+
+To organize and automate the Silver layer loading process, all cleansing and loading scripts are encapsulated within a **Stored Procedure**.
+
+- **Naming Convention**: The stored procedure is typically named `silver.load_silver`.
+- **Encapsulation**: The procedure contains all the `TRUNCATE TABLE` and `INSERT INTO` statements for each Silver table.
+- **Best Practices (Mirroring Bronze Layer)**:
+    - **Truncate and Insert**: Each `INSERT` statement for a Silver table is preceded by a `TRUNCATE TABLE` to ensure a full load and prevent duplicates.
+    - **Improved Messaging**: `PRINT` statements provide clear output messages, indicating the layer being loaded, individual source systems, tables being processed, and specific actions (e.g., "Truncating table...", "Inserting data into...").
+    - **Error Handling (`TRY...CATCH`)**: The core logic is wrapped in `BEGIN TRY...END TRY` and `BEGIN CATCH...END CATCH` blocks to gracefully handle and log errors (e.g., printing `ERROR_MESSAGE()`, `ERROR_NUMBER()`, `ERROR_STATE()`).
+    - **Performance Monitoring**: `start_time` and `end_time` variables are used with `GETDATE()` and `DATEDIFF()` to calculate and print the `Load Duration` for each table and the total Silver layer load, which is critical for large data volumes.
+    - **Consistency**: It's vital to **maintain consistent standards** across all stored procedures (e.g., `load_bronze`, `load_silver`). Any new ideas or redesigns in one procedure should be applied to others to ensure uniformity and ease of understanding for other developers.
+
+### 5. Documentation and Git Commit
+
+The final steps involve updating documentation and committing the code to a Git repository.
+
+- **Extending the Data Flow Diagram (DFD)**: The existing DFD from the Bronze layer is extended to include the Silver layer. This involves visually connecting tables from the Bronze layer to their corresponding tables in the Silver layer, using distinct coloring (e.g., gray for Silver). This creates a **clear data lineage**, allowing quick understanding of data flow across layers without needing to examine scripts.
+- **Committing Code to Git**:
+    - The developed DDL scripts for the Silver layer (e.g., in `scripts/silver/`) are committed.
+    - The stored procedure script for loading the Silver layer is committed.
+    - **Quality Check Queries**: Importantly, the queries used to check the quality of the Silver layer are also committed to the repository, often in a dedicated `tests/quality_checks_silver` folder. These serve as reusable tools for ongoing data quality validation.
+    - All committed scripts include **header comments** explaining their purpose, parameters, and usage examples.
+
+This structured approach ensures that the Silver layer provides a robust, clean, and standardized dataset, ready for the next stage: the Gold layer, which will involve business rules, aggregations, and integrations. The overall data warehouse flow involves running the Bronze layer load first, followed by the Silver layer load, effectively moving and transforming data through the layers.
