@@ -1,3 +1,20 @@
+## Table of Contents
+- [SQL Course 3: SQL Installation](#sql-course-3-sql-installation)
+
+- [SQL Course 4: SQL SELECT Query](#sql-course-4-sql-select-query)
+
+- [SQL Course 6: SQL DML Commands](#sql-course-6-sql-dml-commands)
+
+- [SQL Course 8: SQL Joins Basic](#sql-course-8-sql-joins-basic)
+
+- [SQL Course 9: Advanced SQL JOINs](#sql-course-9-advanced-sql-joins)
+
+- [SQL Course 10: Joining Multiple Tables in SQL](#sql-course-10-joining-multiple-tables-in-sql)
+
+- [SQL Course 11: SQL SET Operators: UNION, UNION ALL, EXCEPT (MINUS), INTERSECT](#sql-course-11-sql-set-operators-union-union-all-except-minus-intersect)
+
+- [SQL Course 26: Why You Need These 5 SQL Techniques in Your SQL Project | Architecture](#sql-course-26-why-you-need-these-5-sql-techniques-in-your-sql-project--architecture)
+
 ## SQL Course 3: SQL Installation
 - There are 2 ways to create a database: the 1st way is executing the script, and the 2nd way is place the script in the SQL DBMS and restore database. (review video SQL Course 3 to recheck)
 ## SQL Course 4: SQL SELECT Query
