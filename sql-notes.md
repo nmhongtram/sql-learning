@@ -124,6 +124,81 @@ AND o.customer_id IS NULL
 - **Use aliases for columns**: When columns with the same name exist in different tables (e.g., `first_name` from both `customers` and `employees`), **rename them using aliases** (e.g., `customer_first_name`, `employee_first_name`) for clarity in results.
 - **Always specify table or alias before column name**: This prevents ambiguity and errors, especially when column names are duplicated across tables (e.g., `O.order_ID`, `C.first_name`).
 - **Double-check join keys**: **Ensure you use the correct columns for join conditions** (e.g., `O.customer_ID = C.customer_ID`), as incorrect keys will lead to meaningless results.
+
+***
+
+## SQL Course 11: SQL SET Operators: UNION, UNION ALL, EXCEPT (MINUS), INTERSECT
+
+SQL Set Operators are powerful tools used to **combine the rows of multiple queries or tables into a single result set**. Unlike SQL JOINs, which combine columns side-by-side, set operators append rows underneath each other. They do not require a key column but have strict rules for combining data.
+
+**Key Differences from SQL JOINs:**
+*   **Purpose:** Set operators combine rows, while JOINs combine columns.
+*   **Key Requirement:** JOINs typically require a key column for combining data, whereas set operators do not; they only require the same columns.
+
+**Syntax:**
+The basic syntax involves placing a set operator between two or more `SELECT` statements:
+`SELECT ... FROM Query1`
+`[SET_OPERATOR]`
+`SELECT ... FROM Query2`
+
+**Rules of SQL Set Operators:**
+For queries to be combined using set operators, several rules must be followed:
+*   **`ORDER BY` Clause:** Can only be used once, and only at the very end of the entire combined query. It cannot be used within individual `SELECT` statements.
+*   **Number of Columns:** All `SELECT` statements being combined **must return the same number of columns**. An error will occur if the column counts differ.
+*   **Data Types:** The data types of corresponding columns in each query **must be compatible or match**. The first query often dictates the expected data type for each position.
+*   **Order of Columns:** The columns in each query **must be in the same order**. SQL maps columns positionally (first column of query 1 to first column of query 2, etc.), not by name.
+*   **Column Aliases/Names:** The column names and aliases in the final output are **determined exclusively by the first query**. Names from subsequent queries are ignored. The first query also controls the data types of the output.
+*   **Correct Information Mapping (User Responsibility):** Even if all SQL rules are met and no errors occur, the user is **solely responsible for ensuring that the *content* of the columns maps correctly**. SQL does not understand the meaning of the data; it only checks data types and order. Incorrect mapping can lead to inaccurate results (e.g., last names appearing in a first name column).
+
+**Types of SQL Set Operators:**
+
+1.  **UNION:**
+    *   Returns **all distinct (unique) rows** from both queries.
+    *   It removes duplicate rows from the combined result set.
+    *   The order of queries generally doesn't affect the final result set, but the first query controls column naming.
+    *   SQL processes it by taking columns from the first query, then adding distinct rows from both queries, carefully avoiding duplicates.
+
+2.  **UNION ALL:**
+    *   Returns **all rows from both queries, including all duplicates**.
+    *   It is the **only set operator that does not remove duplicates**.
+    *   **Performance:** Generally **faster than UNION** because it avoids the extra step of checking for and removing duplicates.
+    *   **Use Cases:** Recommended when you know there are no duplicates in your data, or when you specifically want to see duplicates (e.g., for data quality checks).
+    *   The order of queries does not affect the content of the result, but the first query dictates column naming.
+    *   SQL simply appends all rows from the second query to all rows from the first query without any checks.
+
+3.  **EXCEPT (also called MINUS in some databases):**
+    *   Returns **distinct rows from the first query that are *not found* in the second query**.
+    *   **Order of Queries Matters:** The order of the `SELECT` statements is **crucial** and directly affects the result. `Query1 EXCEPT Query2` will produce a different result than `Query2 EXCEPT Query1`.
+    *   It removes duplicates from its result set.
+    *   SQL uses the second query only as a lookup to check for exclusion; it does not add any rows from the second query to the output.
+
+4.  **INTERSECT:**
+    *   Returns **only the rows that are common to both queries**.
+    *   Similar in concept to an `INNER JOIN` in terms of finding commonalities, but it operates on rows rather than combining columns.
+    *   It removes duplicates from its result set.
+    *   The **order of queries does not matter** for the final result.
+    *   SQL identifies and returns only those rows that exist in both query results.
+
+**Important Use Cases for Set Operators:**
+
+*   **Combining Similar Tables for Data Analysis/Reporting:**
+    *   Aggregating data from multiple similar tables (e.g., `employees`, `customers`, `suppliers`, `students` into a single `persons` table).
+    *   Combining data from tables split for performance (e.g., `orders_2022`, `orders_2023` into a single `orders` table).
+    *   This approach simplifies subsequent analytical queries, as you only need to query one combined table instead of multiple.
+
+*   **Finding the Delta (New Data) between Data Batches (Data Engineering):**
+    *   Using **EXCEPT** to identify new records generated in a source system that need to be loaded into a data warehouse or data lake (e.g., comparing current day's data with previous load).
+
+*   **Data Completeness Checks (Data Migrations/Quality):**
+    *   Using **EXCEPT** to verify if all records have successfully migrated from a source database to a target database.
+    *   This involves performing two `EXCEPT` checks: `SourceTable EXCEPT TargetTable` (to find missing records in target) and `TargetTable EXCEPT SourceTable` (to find extra/unexpected records in target). An empty result from both indicates identical tables.
+
+**Best Practices when Combining Data:**
+*   **Explicitly list columns** instead of using `SELECT *`. This makes the query more robust to schema changes (e.g., column reordering, additions) in the underlying tables over time, preventing silent data mismatches.
+*   Consider **adding a "Source Table" column** (a static string) to your combined result set to identify which original table each record came from. This can be very useful for analysis and auditing.
+
+***
+
 ## SQL Course 26: Why You Need These 5 SQL Techniques in Your SQL Project | Architecture 
 
 Five SQL techniques used to reduce and optimize the complexity of SQL queries, along with the reasons for their necessity and an overview of database architecture. The five techniques are:
