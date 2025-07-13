@@ -13,6 +13,8 @@
 
 - [SQL Course 11: SQL SET Operators: UNION, UNION ALL, EXCEPT (MINUS), INTERSECT](#sql-course-11-sql-set-operators-union-union-all-except-minus-intersect)
 
+- [SQL Course 12: SQL Functions Explained | In 5 Minutes](#sql-course-12-sql-functions-explained--in-5-minutes)
+
 - [SQL Course 26: Why You Need These 5 SQL Techniques in Your SQL Project | Architecture](#sql-course-26-why-you-need-these-5-sql-techniques-in-your-sql-project--architecture)
 
 ## SQL Course 3: SQL Installation
@@ -214,6 +216,27 @@ For queries to be combined using set operators, several rules must be followed:
 *   **Explicitly list columns** instead of using `SELECT *`. This makes the query more robust to schema changes (e.g., column reordering, additions) in the underlying tables over time, preventing silent data mismatches.
 *   Consider **adding a "Source Table" column** (a static string) to your combined result set to identify which original table each record came from. This can be very useful for analysis and auditing.
 
+***
+
+## SQL Course 12: SQL Functions Explained | In 5 Minutes
+*   **What is an SQL Function?**
+    *   An SQL function is a **built-in code block** that accepts an input value, processes it, and then returns a result (an output value).
+    *   They are used to perform various operations on data within tables, such as data manipulation, aggregation, analysis, data cleansing, and data transformations, to solve specific SQL tasks.
+
+*   **Categories of SQL Functions:**
+    *   **Single-row functions**: These functions take a **single input value** and return a **single output value**. An example is the `LEFT` function, which extracts a specified number of characters from the left of a string. Subcategories include functions for string, numeric, date and time values, and handling NULLs.
+    *   **Multi-row functions** (also known as Aggregate functions): These functions accept **multiple input values** (multiple rows) and return **one single aggregated output value**. An example is the `SUM` function, which calculates the sum of all input values. Subgroups include simple aggregate functions and advanced window/analytical functions.
+
+*   **Nesting Functions:**
+    *   You can **nest functions** by using multiple functions together, where the **output of one function becomes the input for another function**.
+    *   This process is likened to a factory where material is processed at multiple stations, and the output of one station becomes the input for the next.
+    *   When functions are nested, the **order of execution always starts from the innermost function** and proceeds outwards. For example, in `LENGTH(LOWER(LEFT('Maria', 2)))`, `LEFT` is executed first, then `LOWER`, and finally `LENGTH`.
+
+*   **Roles in Data Professions:**
+    *   **Single-row functions** are primarily used by **Data Engineers** to clean up, transform, and manipulate data, preparing it for analysis.
+    *   **Multi-row functions** (especially aggregate functions) are mostly used by **Data Analysts** for almost every analysis task.
+
+*   **Importance**: Understanding these functions is crucial because they allow you to perform extensive manipulations and analyses on your data.
 ***
 
 ## SQL Course 26: Why You Need These 5 SQL Techniques in Your SQL Project | Architecture 
