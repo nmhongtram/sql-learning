@@ -15,6 +15,8 @@
 
 - [SQL Course 12: SQL Functions Explained | In 5 Minutes](#sql-course-12-sql-functions-explained--in-5-minutes)
 
+- [SQL Course 13: SQL String Functions | A Detailed Guide](#sql-course-13-sql-string-functions--a-detailed-guide)
+
 - [SQL Course 26: Why You Need These 5 SQL Techniques in Your SQL Project | Architecture](#sql-course-26-why-you-need-these-5-sql-techniques-in-your-sql-project--architecture)
 
 ## SQL Course 3: SQL Installation
@@ -237,6 +239,143 @@ For queries to be combined using set operators, several rules must be followed:
     *   **Multi-row functions** (especially aggregate functions) are mostly used by **Data Analysts** for almost every analysis task.
 
 *   **Importance**: Understanding these functions is crucial because they allow you to perform extensive manipulations and analyses on your data.
+***
+
+## SQL Course 13: SQL String Functions | A Detailed Guide
+
+SQL functions are **built-in code blocks** that take an input, process it, and return an output. They are used for various operations like data manipulation, aggregation, analysis, cleansing, and transformation. This lecture focuses specifically on **string functions** used to transform string values.
+
+String functions are categorized based on their purpose:
+1.  **Data Manipulation Functions**: Modify string values (e.g., concatenation, case conversion, cleaning spaces, replacing characters).
+2.  **Calculation Functions**: Perform calculations on string values (e.g., counting characters).
+3.  **Extraction Functions**: Extract parts of a string value (e.g., from the beginning, end, or a specific position).
+
+#### 1. Data Manipulation Functions
+
+*   **CONCAT (Concatenation)**
+    *   **Purpose**: Combines **multiple string values into one value**. This is useful for merging information from different columns, such as a first name and last name into a full name, or a first name and country into a single display column.
+    *   **Syntax**: `CONCAT(value1, value2, ...)`.
+    *   **Example**: To combine `first_name` and `country` from a `customers` table into a new column called `name_country`:
+        ```sql
+        SELECT CONCAT(first_name, country) AS name_country FROM customers;
+        ```
+    *   **Adding Separators**: You can include spaces or other characters (e.g., dashes, underscores) as arguments to improve readability.
+        ```sql
+        SELECT CONCAT(first_name, ' ', country) AS name_country FROM customers;
+        ```
+        This creates a nice separation between the first name and country.
+
+*   **UPPER and LOWER**
+    *   **Purpose**:
+        *   **UPPER**: Converts all characters of a string to **uppercase**.
+        *   **LOWER**: Converts all characters of a string to **lowercase**.
+    *   **Behavior**: If the string is already in the target case (e.g., applying `UPPER` to an already uppercase string), nothing changes in the output.
+    *   **Example**: To convert the `first_name` column to lowercase:
+        ```sql
+        SELECT LOWER(first_name) AS low_name FROM customers;
+        ```
+    *   **Example**: To convert the `first_name` column to uppercase:
+        ```sql
+        SELECT UPPER(first_name) AS up_name FROM customers;
+        ```
+
+*   **TRIM**
+    *   **Purpose**: Removes **leading and trailing spaces** (empty or white spaces) from a string value. It cleans up empty spaces at the beginning and end of a string.
+    *   **Scenarios**: `TRIM` handles various cases: no spaces, only leading spaces, only trailing spaces, or both leading and trailing spaces. It can also remove multiple spaces at the start or end.
+    *   **Data Cleansing**: Spaces are considered "evil" in data, and `TRIM` is essential for data cleansing.
+    *   **Detecting Spaces**:
+        *   **Method 1 (Comparing with `TRIM`ed value)**: Compare the original string with its `TRIM`med version. If they are not equal, it means there were spaces.
+            ```sql
+            SELECT first_name
+            FROM customers
+            WHERE first_name <> TRIM(first_name);
+            ```
+        *   **Method 2 (Comparing Lengths)**: Compare the length of the original string with the length of its `TRIM`med version. If the lengths are different, there were spaces.
+            ```sql
+            SELECT first_name,
+                   LENGTH(first_name) AS length_original,
+                   LENGTH(TRIM(first_name)) AS length_trimmed,
+                   LENGTH(first_name) - LENGTH(TRIM(first_name)) AS flag
+            FROM customers
+            WHERE LENGTH(first_name) <> LENGTH(TRIM(first_name));
+            ```
+            A `flag` value greater than zero indicates the presence of white spaces.
+
+*   **REPLACE**
+    *   **Purpose**: Replaces a **specific "old" character or string with a "new" character or string** within a given value.
+    *   **Syntax**: `REPLACE(value, old_value, new_value)`.
+    *   **Use Cases**:
+        *   **Replacing Characters**: E.g., changing dashes in a phone number to slashes.
+            ```sql
+            SELECT REPLACE('123-456-7890', '-', '/') AS formatted_phone;
+            ```
+        *   **Removing Characters**: By specifying an **empty string (`''`)** as the `new_value`, the `REPLACE` function effectively removes all occurrences of the `old_value`.
+            ```sql
+            SELECT REPLACE('123-456-7890', '-', '') AS clean_phone;
+            ```
+        *   **Changing File Extensions**: E.g., changing `.txt` to `.csv` in a file name.
+            ```sql
+            SELECT REPLACE('reports.txt', '.txt', '.csv') AS new_file_name;
+            ```
+
+#### 2. Calculation Functions
+
+*   **LENGTH**
+    *   **Purpose**: Counts the **number of characters** in a given value. It calculates the length of a value.
+    *   **Behavior**: Works for strings, numbers (counts digits), and even date values (counts each character/digit, including separators). The output is always a number.
+    *   **Example**: To calculate the length of each customer's first name:
+        ```sql
+        SELECT first_name, LENGTH(first_name) AS link_name FROM customers;
+        ```
+
+#### 3. Extraction Functions
+
+*   **LEFT**
+    *   **Purpose**: Extracts a **specific number of characters from the start (left side)** of a string value.
+    *   **Syntax**: `LEFT(value, number_of_characters)`.
+    *   **Example**: To retrieve the first two characters of each `first_name`:
+        ```sql
+        SELECT LEFT(first_name, 2) AS first_two_character FROM customers;
+        ```
+    *   **Combining with TRIM**: To handle leading spaces before extraction, you can nest `TRIM` inside `LEFT`:
+        ```sql
+        SELECT LEFT(TRIM(first_name), 2) AS first_two_character FROM customers;
+        ```
+
+*   **RIGHT**
+    *   **Purpose**: Extracts a **specific number of characters from the end (right side)** of a string value.
+    *   **Syntax**: `RIGHT(value, number_of_characters)`.
+    *   **Example**: To retrieve the last two characters of each `first_name`:
+        ```sql
+        SELECT RIGHT(first_name, 2) AS last_two_character FROM customers;
+        ```
+    *   **Note**: If trailing spaces might be present, it's good practice to use `TRIM` before `RIGHT`.
+
+*   **SUBSTRING**
+    *   **Purpose**: Extracts a part of a string from a **specified starting position**. This is used when you need to extract characters from the "middle" of a string, not just the beginning or end.
+    *   **Syntax**: `SUBSTRING(value, starting_position, length)`.
+        *   `starting_position`: The character position where SQL should begin extracting (counting starts from 1).
+        *   `length`: How many characters to extract from the `starting_position`.
+    *   **Example**: To extract two characters after the second character from 'Maria' (i.e., 'ri'):
+        *   'M' is position 1, 'a' is position 2. "After the second character" means starting from position 3 ('r').
+        *   We want 2 characters: 'r' and 'i'.
+        ```sql
+        SELECT SUBSTRING('Maria', 3, 2); -- Returns 'ri'
+        ```
+    *   **Dynamic Length (Extracting "Everything After")**: If you want to extract all characters from a specified `starting_position` until the end of the string, you can use the `LENGTH` function for the `length` argument. This ensures you always extract enough characters, regardless of the string's actual length, without error.
+        *   **Example**: To remove the first character of each `first_name` (i.e., extract everything from the second character onwards):
+            ```sql
+            SELECT SUBSTRING(first_name, 2, LENGTH(first_name)) AS subname FROM customers;
+            ```
+            *   `starting_position` is 2 (after the first character).
+            *   `LENGTH(first_name)` ensures the `length` argument is dynamic and sufficient for any name.
+    *   **Nesting Functions for Complex Tasks**: SQL allows **nesting multiple functions** together, where the output of one function becomes the input for another [Dựa trên ghi chú trước đó, không trực tiếp từ nguồn mới]. For example, `TRIM`, `LENGTH`, and `SUBSTRING` can be combined to clean leading/trailing spaces before extracting a substring with a dynamic length.
+        ```sql
+        SELECT SUBSTRING(TRIM(first_name), 2, LENGTH(TRIM(first_name))) AS subname FROM customers;
+        ```
+        The **order of execution** when nesting is always from the **innermost function outwards**
+
+**Conclusion**: Understanding and utilizing these string functions provides powerful tools for manipulating and transforming string values in your data.
 ***
 
 ## SQL Course 26: Why You Need These 5 SQL Techniques in Your SQL Project | Architecture 
