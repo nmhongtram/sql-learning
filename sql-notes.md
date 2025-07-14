@@ -378,6 +378,39 @@ String functions are categorized based on their purpose:
 **Conclusion**: Understanding and utilizing these string functions provides powerful tools for manipulating and transforming string values in your data.
 ***
 
+## SQL Course 14: SQL Number Functions | ROUND & ABS
+This video introduces two simple but important SQL functions for transforming numeric values: **ROUND** and **ABS (Absolute)**.
+
+### 1. **ROUND Function**
+*   **Purpose**: To round numeric values to a specified number of decimal places or to the nearest integer.
+*   **How it Works**:
+    *   It takes a number and an optional argument for the number of decimal places you want to keep.
+    *   **Rounding Rule**: SQL checks the digit immediately after the last desired decimal place.
+        *   If this digit is **5 or higher**, the number is **rounded up**.
+        *   If this digit is **less than 5**, the number is **not rounded up**; it stays as is.
+    *   **Digits after the rounding point** will be reset to zero.
+*   **Examples with `3.516`**:
+    *   `ROUND(3.516, 2)`: Rounds to two decimal places. The third digit (6) is higher than 5, so 51 is rounded up to 52, resulting in **`3.52`**.
+    *   `ROUND(3.516, 1)`: Rounds to one decimal place. The second digit (1) is less than 5, so 5 is not rounded up, resulting in **`3.5`**.
+    *   `ROUND(3.516, 0)`: Rounds to zero decimal places (an integer). The first digit after the decimal (5) is 5, so the number 3 is rounded up to 4, resulting in **`4`**.
+*   **Application**: Can be used with static values for practice or applied to data within a database.
+
+### 2. **ABS (Absolute) Function**
+*   **Purpose**: To convert any negative number into its positive equivalent. It returns the absolute value of a number.
+*   **How it Works**:
+    *   If you have a **negative number** (e.g., `-10`), `ABS(-10)` will return **`10`**.
+    *   If the number is **already positive** (e.g., `10`), `ABS(10)` will return **`10`**; nothing changes.
+*   **Practical Importance**:
+    *   It's a "really nice and cool function" that is important for transforming numbers.
+    *   Useful for **data correction**, especially when dealing with illogical negative values in a database, such as negative sales figures, which "make no sense". `ABS` can convert these negative figures to positive ones.
+***
+
+
+
+
+
+
+
 ## SQL Course 26: Why You Need These 5 SQL Techniques in Your SQL Project | Architecture 
 
 Five SQL techniques used to reduce and optimize the complexity of SQL queries, along with the reasons for their necessity and an overview of database architecture. The five techniques are:
