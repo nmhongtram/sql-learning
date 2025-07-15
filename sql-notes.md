@@ -17,6 +17,12 @@
 
 - [SQL Course 13: SQL String Functions | A Detailed Guide](#sql-course-13-sql-string-functions--a-detailed-guide)
 
+- [SQL Course 14: SQL Number Functions | ROUND & ABS](#sql-course-14-sql-number-functions--round--abs)
+
+- [SQL Course 15: SQL Date & Time Functions | Datepart, Datename, Datetrunc, Eomonth](#sql-course-15-sql-date--time-functions--datepart-datename-datetrunc-eomonth)
+
+- [SQL Course 16: SQL Date & Time Functions | Format, Convert, Cast](#sql-course-16-sql-date--time-functions--format-convert-cast)
+
 - [SQL Course 26: Why You Need These 5 SQL Techniques in Your SQL Project | Architecture](#sql-course-26-why-you-need-these-5-sql-techniques-in-your-sql-project--architecture)
 
 ## SQL Course 3: SQL Installation
@@ -520,10 +526,99 @@ Understanding the output data type is crucial to avoid unexpected results:
 *   `DATENAME()`: **String**.
 *   `DATETRUNC()`: **`datetime2`** (or `datetime` in some contexts, meaning both date and time information).
 *   `EOMONTH()`: **Date**.
+***
 
+## SQL Course 16: SQL Date & Time Functions | Format, Convert, Cast
 
+This lecture delves into manipulating dates and times in SQL, specifically focusing on the concepts of **formatting** and **casting**, along with the key functions used for these operations: `FORMAT()`, `CONVERT()`, and `CAST()`.
 
+### 1. Understanding Date Format
 
+*   **Definition**: A date format is a combination of numbers and characters that represent date and time information. For instance, `2025-08-20 18:55:45` combines numbers like `2025`, `08`, `20` with characters like `-` and `:`.
+*   **Format Specifiers**: These are characters that represent specific date/time components and are **case-sensitive**.
+    *   **Year**: `yyyy` (e.g., `2025`).
+    *   **Month**: `MM` (two digits, e.g., `08`); `MMM` (abbreviated name, e.g., `Aug`); `MMMM` (full name, e.g., `August`). Note: `MM` is for month, while `mm` is for minutes.
+    *   **Day**: `dd` (two digits, e.g., `20`); `ddd` (abbreviated day of week); `dddd` (full day of week).
+    *   **Hour**: `HH` (24-hour system); `hh` (12-hour system, used with `AM/PM`).
+    *   **Minute**: `mm` (two digits).
+    *   **Second**: `ss` (two digits).
+    *   **AM/PM**: `tt`.
+*   **Different Formatting Standards**:
+    *   **International Standard (ISO 6801)**: `yyyy-MM-dd` (e.g., `2025-08-20`). **SQL Server adheres to this format** for all dates within the database.
+    *   **USA Standard**: `MM-dd-yyyy` (e.g., `08-20-2025`).
+    *   **European Standard**: `dd-MM-yyyy` (e.g., `20-08-2025`).
+
+### 2. Formatting vs. Casting
+
+*   **Formatting**:
+    *   **Purpose**: To **change the display** of a value from one format to another **without altering its underlying data type**.
+    *   Example: Changing `2025-08-20` to `08/20/25`.
+*   **Casting**:
+    *   **Purpose**: To **change the data type** of a value from one type to another.
+    *   Example: Converting the string `"123"` to an integer `123`, or a `DATE` value to a `STRING`.
+
+### 3. The `FORMAT()` Function
+
+*   **Purpose**: To **format** date, time, or number values, changing their appearance.
+*   **Syntax**: `FORMAT(value, format, [culture])`.
+    *   **`value`**: The date, time, or number to be formatted.
+    *   **`format`**: The desired new format, using format specifiers (e.g., `'dd/MM/yyyy'`).
+    *   **`culture` (optional)**: A culture code specifying the style of a country or region (e.g., `'en-US'`, `'ja-JP'`). If not specified, SQL uses the default culture `en-US`. This option is less commonly used in real projects.
+*   **Output Data Type**: Always a **string (`VARCHAR`)**.
+*   **Formatting Examples**:
+    *   `FORMAT(order_date, 'dd/MM/yyyy')`.
+    *   Creating USA (`MM-dd-yyyy`) or European (`dd-MM-yyyy`) standard formats.
+    *   Constructing complex custom formats by combining static text and date parts, such as "Day [Abbreviated Day Name] [Abbreviated Month Name] [Quarter] [Year] [Time AM/PM]".
+*   **Use Cases**:
+    *   **Data Aggregation and Reporting**: Formatting dates for reports at various levels of detail (e.g., sales by month showing abbreviated month names and two-digit years). It allows for more display customization than `DATEPART()`.
+    *   **Data Preparation and Cleaning**: Converting different date formats from multiple sources into one standard format for analysis.
+*   **Limitation**: Cannot be used to change the data type.
+
+### 4. The `CONVERT()` Function
+
+*   **Purpose**: To convert a value to a different data type and, **simultaneously, it can format** the value using `style numbers`.
+*   **Syntax**: `CONVERT(target_data_type, value, [style_number])`.
+    *   **`target_data_type`**: The desired data type (e.g., `INT`, `VARCHAR`, `DATE`).
+    *   **`value`**: The value to be converted.
+    *   **`style_number` (optional)**: A numeric code to format the output. If not specified, the default value `0` is used.
+*   **Output Data Type**: Determined by the `target_data_type`.
+*   **Use Cases**:
+    *   **Pure Casting**:
+        *   String to Integer: `CONVERT(INT, '123')`.
+        *   String to Date: `CONVERT(DATE, '2025-08-20')`.
+        *   Datetime to Date (loses time information): `CONVERT(DATE, creation_time)`.
+    *   **Casting AND Formatting**:
+        *   Converting `DATETIME` to `VARCHAR` with a specific format style (e.g., USA standard style `32`, European standard style `34`).
+*   **Capabilities**: Can convert any data type to any other type. Can format date/time values when converting to a string type.
+*   **Limitation**: Cannot format numbers.
+
+### 5. The `CAST()` Function
+
+*   **Purpose**: To convert a value to a different data type. This function is **solely for casting and has no formatting capabilities**.
+*   **Syntax**: `CAST(value AS target_data_type)`.
+    *   **`value`**: The value to be converted.
+    *   **`AS`**: The keyword separating the value and the target data type.
+    *   **`target_data_type`**: The desired data type (e.g., `INT`, `VARCHAR`, `DATE`).
+*   **Output Data Type**: Determined by the `target_data_type`.
+*   **Use Cases**:
+    *   String to Integer: `CAST('123' AS INT)`.
+    *   Integer to String: `CAST(123 AS VARCHAR)`.
+    *   String to Date: `CAST('2025-08-20' AS DATE)`.
+    *   Datetime to Date (removes time information): `CAST(creation_time AS DATE)`.
+*   **Capabilities**: Can convert any data type to any other type.
+*   **Limitation**: **Cannot be used for formatting or styling**. When casting with `CAST()`, the output will always be in SQL's standard format for the target data type.
+
+### 6. Comparison of `CAST()`, `CONVERT()`, and `FORMAT()`
+
+The table below summarizes the key differences between the three functions:
+
+| Feature           | `CAST()`                                 | `CONVERT()`                              | `FORMAT()`                                        |
+| :---------------- | :--------------------------------------- | :--------------------------------------- | :------------------------------------------------ |
+| **Data Type Casting** | Yes (any type to any other type)    | Yes (any type to any other type)    | Converts only to **string** (as its main purpose is formatting) |
+| **Formatting/Styling** | **No**                              | Yes (date/time formatting using style numbers) | Yes (date/time **and number** formatting using format specifiers) |
+
+Understanding the distinctions between these functions is crucial for selecting the appropriate tool for your data manipulation needs in SQL.
+***
 
 
 
