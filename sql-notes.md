@@ -405,6 +405,134 @@ This video introduces two simple but important SQL functions for transforming nu
     *   Useful for **data correction**, especially when dealing with illogical negative values in a database, such as negative sales figures, which "make no sense". `ABS` can convert these negative figures to positive ones.
 ***
 
+## SQL Course 15: SQL Date & Time Functions | Datepart, Datename, Datetrunc, Eomonth
+
+This lecture covers the fundamentals of date and time in SQL, explores 13 different date and time functions, and explains their syntax, functionality, and use cases.
+
+**1. Understanding Date and Time in SQL**
+*   **Date**: Represents a specific day, composed of:
+    *   **Year**: Four-digit number (e.g., 2025).
+    *   **Month**: Number between 1 and 12 (e.g., 8 for August).
+    *   **Day**: Number between 1 and 31.
+    *   Example: August 20th, 2025.
+*   **Time**: Refers to a specific point within a day, composed of:
+    *   **Hours**: Number between 0 and 23 (e.g., 18).
+    *   **Minutes**: Number between 0 and 59 (e.g., 55).
+    *   **Seconds**: Number between 0 and 59 (e.g., 45).
+    *   Example: 18:55:45.
+*   **Timestamp / Datetime**: Combines both date and time information.
+    *   Often called `timestamp` in databases like Oracle, PostgreSQL, and MySQL, but `datetime` in SQL Server.
+    *   Has a hierarchy from highest to lowest: **Year, Month, Day, Hour, Minute, Seconds**.
+    *   Example: 2025-08-20 18:55:45 (including fractions of seconds like milliseconds).
+
+**2. Sources of Date and Time Information in SQL Queries**
+There are three main ways to get date information into your SQL queries:
+1.  **Stored in the Database**: Dates and times are stored as columns in tables (e.g., `order date`, `shipping date` with `date` data type; `creation time` with `datetime` data type).
+2.  **Hardcoded Date String**: You can define a static date directly in your query as a string (e.g., `'2025-08-20'`). This value is not stored in the database.
+3.  **`GETDATE()` Function**: Returns the **current date and time** at the moment the query is executed. It takes no parameters.
+
+**3. Categories of Date and Time Manipulation Functions**
+SQL offers 13 different functions, grouped into four categories:
+1.  **Part Extraction**: Extracting different components of a date (e.g., year, month, day).
+2.  **Format and Casting**: Changing the display format or data type of dates.
+3.  **Calculations**: Adding or subtracting time units, or finding differences between dates.
+4.  **Validation**: Testing if a date is valid (e.g., using `ISDATE()`).
+
+**4. Part Extraction Functions (The Biggest Category)**
+
+*   **`DAY()`, `MONTH()`, `YEAR()`**
+    *   **Purpose**: Simple functions to extract the day, month, or year part from a date.
+    *   **Syntax**: Each function accepts **one parameter: the date** (e.g., `DAY(date_column)`, `MONTH(date_column)`, `YEAR(date_column)`).
+    *   **Output Data Type**: **Integer**.
+    *   **Example**:
+        *   `YEAR('2025-08-20')` returns `2025`.
+        *   `MONTH('2025-08-20')` returns `8`.
+        *   `DAY('2025-08-20')` returns `20`.
+
+*   **`DATEPART()`**
+    *   **Purpose**: Returns a **specific part of the date as a number**, offering more options than `DAY()`, `MONTH()`, `YEAR()` (e.g., week, quarter, hour, minute, second, weekday).
+    *   **Syntax**: Accepts **two parameters**:
+        1.  **Part**: The specific date part you want to extract (e.g., `year`, `month`, `day`, `week`, `quarter`, `hour`, `minute`, `second`, `weekday`). Abbreviations (e.g., `yy` for year, `mm` for month) can also be used but full names are recommended for clarity and standardization.
+        2.  **Date**: The date value from which to extract the part.
+        *   Example: `DATEPART(month, order_date)`.
+    *   **Output Data Type**: **Integer**.
+    *   **Key Insight**: `DATEPART()` can extract parts not directly visible in a date field, like the quarter or week number. It can extract the same parts as `YEAR()`, `MONTH()`, `DAY()` (e.g., `DATEPART(year, creation_time)` is identical to `YEAR(creation_time)`) but also provides other parts like `hour`, `minute`, `second`, `quarter`, `weekday`, `week`.
+
+*   **`DATENAME()`**
+    *   **Purpose**: Very similar to `DATEPART()`, but it **returns the *name* of the date part**.
+    *   **Syntax**: Identical to `DATEPART()`: **two parameters** (part, date).
+    *   **Output Data Type**: **String**.
+    *   **Key Differences & Insights**:
+        *   For `month` and `weekday` parts, it returns the full name (e.g., `August` instead of `8`, `Wednesday` instead of `20` or a number).
+        *   For parts like `day` or `year`, it still returns numbers, but the **data type of the output is a string**, not an integer.
+        *   **Core Use Case**: **To present easy-to-read, human-readable information to users in reports** (e.g., showing `January` instead of `1` for sales by month).
+
+*   **Decision Process for Part Extraction Functions**
+    *   **Do I need `day` or `month`?**
+        *   If **YES, as an integer (number)**, use `DAY()` or `MONTH()` (they are quick).
+        *   If **YES, as the full name (string)**, use `DATENAME()`.
+    *   **Do I need `year`?**
+        *   Always use `YEAR()` directly (no 'year name' concept).
+    *   **Do I need other parts (e.g., `week`, `quarter`, `hour`, `minute`, `second`, `weekday`)?**
+        *   Use `DATEPART()` if you need the **number**.
+        *   Use `DATENAME()` if you need the **name** (especially for `weekday`).
+
+**5. `DATETRUNC()` (Date Truncation)**
+*   **Purpose**: **Truncates a date or datetime to a specific level of detail** by resetting all lower-hierarchy components to their minimum values (e.g., minutes/seconds to `00`, day to `01`). It doesn't extract a part, but rather changes the precision of the date/time.
+*   **Syntax**: Identical to `DATEPART()` and `DATENAME()`: **two parameters** (part, date).
+*   **Output Data Type**: Always a **`date` or `datetime`** (or `datetime2`).
+*   **How it Works (Hierarchy Resets)**:
+    *   `DATETRUNC(minute, datetime_value)`: Keeps year, month, day, hour, minute; resets seconds to `00`.
+    *   `DATETRUNC(hour, datetime_value)`: Keeps year, month, day, hour; resets minutes and seconds to `00`.
+    *   `DATETRUNC(day, datetime_value)`: Keeps year, month, day; resets all time components (hour, minute, second) to `00:00:00`.
+    *   `DATETRUNC(month, datetime_value)`: Keeps year, month; resets day to `01` and all time components to `00:00:00`.
+    *   `DATETRUNC(year, datetime_value)`: Keeps year; resets month to `01`, day to `01`, and all time components to `00:00:00`.
+*   **Key Insight: Amazing for Data Analytics**
+    *   Allows **quick aggregation of data at different granularities** (e.g., aggregating orders by month or year instead of by second).
+    *   Helps in "zooming in and zooming out" on data for analysis.
+
+**6. `EOMONTH()` (End of Month)**
+*   **Purpose**: Returns the **last day of the month** for a given date.
+*   **Syntax**: Accepts **one parameter: the date** (e.g., `EOMONTH(date_value)`).
+*   **Output Data Type**: **Date**.
+*   **Example**: `EOMONTH('2025-08-20')` returns `2025-08-31`. If the date is already the last day of the month, it returns the same date.
+
+**7. Getting the First Day of the Month**
+*   There's no dedicated `SOMONTH()` function.
+*   **Trick**: Use `DATETRUNC()` to truncate the date to the `month` level, which automatically resets the day to `01` and time to `00:00:00`.
+*   **To get a `date` data type (without time)**, `CAST` the result of `DATETRUNC()` to `DATE`.
+    *   Example: `CAST(DATETRUNC(month, creation_time) AS DATE)`.
+
+**8. Use Cases for Extracting Date Parts**
+
+*   **Data Aggregations and Reporting**
+    *   Allows aggregating data based on specific time units (e.g., sales by year, quarter, or month).
+    *   Example: `SELECT YEAR(order_date), COUNT(*) AS number_of_orders FROM sales_orders GROUP BY YEAR(order_date)`.
+    *   For human-readable reports (e.g., showing month names), use `DATENAME()` in `SELECT` and `GROUP BY` clauses.
+
+*   **Filtering Data**
+    *   Used in `WHERE` clauses to filter data based on specific parts of a date (e.g., `WHERE MONTH(order_date) = 2` to find orders placed in February).
+    *   **Recommendation**: When filtering, **always use functions that return numbers** (like `DAY()`, `MONTH()`, `YEAR()`, `DATEPART()`) instead of `DATENAME()`. Searching and filtering with integers is generally **faster** than with strings.
+
+**9. Data Type Recap of Function Results**
+Understanding the output data type is crucial to avoid unexpected results:
+*   `DAY()`, `MONTH()`, `YEAR()`, `DATEPART()`: **Integer**.
+*   `DATENAME()`: **String**.
+*   `DATETRUNC()`: **`datetime2`** (or `datetime` in some contexts, meaning both date and time information).
+*   `EOMONTH()`: **Date**.
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
