@@ -23,6 +23,8 @@
 
 - [SQL Course 16: SQL Date & Time Functions | Format, Convert, Cast](#sql-course-16-sql-date--time-functions--format-convert-cast)
 
+- [SQL Course 17: SQL Date & Time Functions | Dateadd, Datediff, Isdate](#sql-course-17-sql-date--time-functions--dateadd-datediff-isdate)
+
 - [SQL Course 26: Why You Need These 5 SQL Techniques in Your SQL Project | Architecture](#sql-course-26-why-you-need-these-5-sql-techniques-in-your-sql-project--architecture)
 
 ## SQL Course 3: SQL Installation
@@ -620,6 +622,55 @@ The table below summarizes the key differences between the three functions:
 Understanding the distinctions between these functions is crucial for selecting the appropriate tool for your data manipulation needs in SQL.
 ***
 
+## SQL Course 17: SQL Date & Time Functions | Dateadd, Datediff, Isdate
+
+This video covers three essential SQL date and time functions: `DATEADD`, `DATEDIFF`, and `ISDATE`, demonstrating their use cases for data manipulation, calculations, and validation.
+
+### 1. `DATEADD` Function
+
+*   **Purpose**: Allows you to **add or subtract a specific time interval to or from a date**. Despite its name, it can also subtract.
+*   **Syntax**: `DATEADD(part, interval, date)`.
+    *   **`part`**: Specifies the part of the date you want to manipulate, such as `year`, `month`, or `day`.
+    *   **`interval`**: An integer representing the number of units to add or subtract. A positive value adds, while a negative value subtracts.
+    *   **`date`**: The original date value that will be manipulated.
+*   **Examples/Use Cases**:
+    *   **Adding years**: To add 3 years to '2025 August 20th', the output would be '2028 August 20th'.
+    *   **Subtracting months**: To subtract 2 months from '2025 August 20th', the output would be '2025 June 20th'.
+    *   **Adding days**: To add 5 days to '2025 August 20th', the output would be '2025 August 25th'.
+    *   **Manipulating a field**: You can use `DATEADD(year, 2, OrderDate)` to add two years to each `OrderDate` in a table, or `DATEADD(day, -10, OrderDate)` to subtract 10 days.
+
+### 2. `DATEDIFF` Function
+
+*   **Purpose**: `DATEDIFF` (Difference) is used to **find the difference between two dates**. It returns a number representing the specified time interval between the two dates.
+*   **Syntax**: `DATEDIFF(part, start_date, end_date)`.
+    *   **`part`**: The unit of difference you want to find, such as `year`, `month`, or `day`.
+    *   **`start_date`**: The earlier or youngest date.
+    *   **`end_date`**: The later or oldest date.
+*   **Examples/Use Cases**:
+    *   **Finding difference between two specific dates**: If `OrderDate` is '2025 August 20th' and `ShippingDate` is '2026 February 1st', `DATEDIFF(year, OrderDate, ShippingDate)` returns 1 year, `DATEDIFF(month, OrderDate, ShippingDate)` returns 6 months (Note: The source example states 3 months which seems like an error based on the dates provided).
+    *   **Calculating Age**: Use `DATEDIFF(year, BirthDate, GETDATE())` to find the age of employees by calculating the years between their birth date and the current date (`GETDATE()`).
+    *   **Calculating Shipping Duration**: Find the number of days between `OrderDate` and `ShipDate` using `DATEDIFF(day, OrderDate, ShipDate)`.
+    *   **Finding Average Shipping Duration per Month**: You can combine `DATEDIFF` with `AVG()` and `GROUP BY` the month of the `OrderDate` to find the average shipping duration for each month. This is a simple aggregation task.
+    *   **Time Gap Analysis (e.g., Days Between Orders)**: To find the number of days between each order and the *previous* order, you can use `DATEDIFF(day, LAG(OrderDate) OVER (ORDER BY OrderDate), OrderDate)`. The `LAG` window function retrieves the `OrderDate` from the previous record. This type of analysis is crucial for business insights.
+
+### 3. `ISDATE` Function
+
+*   **Purpose**: `ISDATE` is a validation function that **checks whether a given value is a valid date**.
+*   **Returns**: It returns `1` (true) if the value is a valid date string or number, and `0` (false) if it is not.
+*   **Syntax**: `ISDATE(value)`. It accepts string values and can also accept numbers (like a year, e.g., '2025', which it considers valid).
+*   **Examples/Use Cases**:
+    *   `ISDATE('123')` returns `0`.
+    *   `ISDATE('2025 August 20')` returns `1`.
+    *   `ISDATE('20-08-2025')` might return `0` if the format does not follow the standard database format.
+    *   `ISDATE('2025')` returns `1` (SQL considers this a valid year, possibly defaulting to January 1st of that year).
+    *   `ISDATE('August')` returns `0`.
+    *   **Data Quality and Error Handling**: `ISDATE` is particularly useful for preparing data before analysis, especially when dealing with data quality issues (e.g., corrupt string values that are supposed to be dates).
+        *   **Preventing Errors During Casting**: If you try to directly `CAST` a string column with invalid date values to a `DATE` data type, SQL will throw an error.
+        *   **Conditional Casting with `CASE WHEN`**: You can use `ISDATE` within a `CASE WHEN` statement to cast values to `DATE` only if they pass the `ISDATE` check (i.e., `ISDATE(OrderDate) = 1`). For values that fail the check, you can set them to `NULL` or a dummy value, preventing casting errors and allowing you to identify problematic data.
+        *   **Identifying Data Quality Issues**: By filtering for records where `ISDATE(column_name) = 0`, you can easily identify all invalid date entries in a large table, which is crucial for data cleanup.
+
+These date functions are powerful tools for performing analytical tasks and reporting in SQL.
+
 
 
 
@@ -679,5 +730,5 @@ Understanding the database architecture is crucial to grasp how these techniques
 When a simple `SELECT` query is sent from the client to the server, the database engine first checks if the required data is in the **cache** for fast retrieval. If not, it retrieves the data from **disk storage**, executes the query, and sends the results back to the client.
 
 The understanding of these challenges and the database architecture provides the foundation for appreciating the importance and function of the five SQL techniques that will be explored further.
-
+***
 
