@@ -25,6 +25,8 @@
 
 - [SQL Course 17: SQL Date & Time Functions | Dateadd, Datediff, Isdate](#sql-course-17-sql-date--time-functions--dateadd-datediff-isdate)
 
+- [SQL Course 18: SQL NULL Functions | COALESCE, ISNULL, NULLIF, IS (NOT) NULL](#sql-course-18-sql-null-functions--coalesce-isnull-nullif-is-not-null)
+
 - [SQL Course 26: Why You Need These 5 SQL Techniques in Your SQL Project | Architecture](#sql-course-26-why-you-need-these-5-sql-techniques-in-your-sql-project--architecture)
 
 ## SQL Course 3: SQL Installation
@@ -670,7 +672,124 @@ This video covers three essential SQL date and time functions: `DATEADD`, `DATED
         *   **Identifying Data Quality Issues**: By filtering for records where `ISDATE(column_name) = 0`, you can easily identify all invalid date entries in a large table, which is crucial for data cleanup.
 
 These date functions are powerful tools for performing analytical tasks and reporting in SQL.
+***
 
+## SQL Course 18: SQL NULL Functions | COALESCE, ISNULL, NULLIF, IS (NOT) NULL
+
+#### 1. Understanding Nulls
+*   **Definition**: In SQL databases, a **NULL** means nothing, unknown, or a missing value.
+*   **Characteristics**:
+    *   It is **not equal to zero**, an empty string, or a blank space.
+    *   It simply tells us there is no value.
+    *   It's like saying "I don't know what this value is".
+*   **Scenario**: When filling out a form, optional fields left unanswered will be stored as NULLs in database tables.
+
+#### 2. Overview of Null Functions
+SQL provides special functions to handle NULLs in data. These functions primarily fall into categories:
+*   **Replacing NULLs with values**: `ISNULL`, `COALESCE`.
+*   **Replacing values with NULLs**: `NULLIF`.
+*   **Checking for NULLs**: `IS NULL`, `IS NOT NULL`.
+
+#### 3. Detailed Functions and Use Cases
+
+##### A. ISNULL
+*   **Purpose**: Replaces a NULL value with a specified replacement value.
+*   **Syntax**: `ISNULL(value, replacement_value)`.
+    *   `value`: The column or expression to check for NULLs.
+    *   `replacement_value`: The value to use if `value` is NULL. This can be a **static value** (e.g., 'Unknown', 'N/A') or **another column**.
+*   **How it Works**:
+    *   If the `value` is **not NULL**, `ISNULL` returns the `value` itself.
+    *   If the `value` **is NULL**, `ISNULL` returns the `replacement_value`.
+*   **Important Considerations**:
+    *   **Static Replacement**: If a static value is used as a replacement, the output will never contain a NULL.
+    *   **Column Replacement**: If another column is used as a replacement, the output might still contain NULLs if the replacement column itself contains NULLs.
+*   **Limitation**: `ISNULL` is limited to **two arguments**.
+
+##### B. COALESCE
+*   **Purpose**: Returns the **first non-NULL value** from a list of values.
+*   **Syntax**: `COALESCE(value1, value2, value3, ...)`.
+    *   It accepts a list of multiple values.
+*   **How it Works**:
+    *   It checks values from **left to right**.
+    *   It stops immediately and returns the first non-NULL value it encounters.
+*   **Advantages over ISNULL**:
+    *   **Multiple Values**: Can handle a list of many values, unlike `ISNULL` which is limited to two. This allows for more sophisticated fallback logic (e.g., check `shipping_address`, then `billing_address`, then a default 'Unknown').
+    *   **Database Standard**: `COALESCE` is available in **all different databases**, making it more portable and standard compared to `ISNULL` which has different keywords across databases (e.g., `NVL` in Oracle, `IFNULL` in MySQL).
+*   **Disadvantage**: `ISNULL` is **faster** than `COALESCE`.
+*   **Advice**: Generally **prefer `COALESCE`** for its standardization and flexibility, unless performance is a critical issue that necessitates `ISNULL`.
+
+##### C. NULLIF
+*   **Purpose**: Compares two values and **returns NULL if they are equal**, otherwise returns the first value.
+*   **Syntax**: `NULLIF(value1, value2)`.
+    *   Accepts **only two values** (a column and a static value, or two columns).
+*   **How it Works**:
+    *   If `value1` **equals** `value2`, `NULLIF` returns `NULL`.
+    *   If `value1` **does not equal** `value2`, `NULLIF` returns `value1`.
+    *   The `value2` is always used only for checking; it is never returned as an output.
+*   **Use Cases**:
+    *   **Replacing specific values with NULL**: For example, replacing a negative price (-1) with NULL because it indicates a data quality issue.
+    *   **Highlighting/Flagging special cases**: Using NULL as a flag when two values (e.g., original price and discount price) are unexpectedly equal.
+    *   **Preventing divide-by-zero errors**: By replacing a divisor of zero with NULL, any division by this NULL will result in NULL instead of an error.
+
+##### D. IS NULL and IS NOT NULL
+*   **Purpose**: Checks whether a value is NULL or not NULL, returning a **Boolean (TRUE or FALSE)** result.
+*   **Syntax**:
+    *   `value IS NULL`.
+    *   `value IS NOT NULL`.
+*   **How it Works**:
+    *   `value IS NULL`: Returns `TRUE` if `value` is NULL, `FALSE` otherwise.
+    *   `value IS NOT NULL`: Returns `TRUE` if `value` is not NULL, `FALSE` otherwise.
+    *   These functions never return the value itself or a NULL; they always return a Boolean flag.
+*   **Use Cases**:
+    *   **Searching for missing information**: Identifying records where a specific column (e.g., score) is NULL.
+    *   **Searching for existing information**: Identifying records where a specific column (e.g., score) is not NULL.
+    *   **Implementing Advanced Join Types**: Used in combination with `LEFT JOIN` or `RIGHT JOIN` to find unmatching rows (anti-joins).
+
+#### 4. Critical Use Cases for Handling Nulls (using ISNULL or COALESCE primarily)
+
+##### A. Handling Nulls Before Data Aggregations
+*   **Problem**: Aggregate functions (e.g., `AVG`, `SUM`, `MIN`, `MAX`) **ignore NULL values** in their calculations. `COUNT(*)` is an exception, as it counts all rows regardless of NULLs.
+*   **Impact**: If a business understands NULL as zero (e.g., missing sales count as zero sales), ignoring NULLs in aggregations leads to **inaccurate results**.
+*   **Solution**: **Replace NULLs with zero** (or another appropriate value) using `ISNULL` or `COALESCE` *before* performing aggregations.
+    *   Example: `AVG(COALESCE(score, 0))` will include NULL scores as zeros in the average calculation, providing a more accurate result if that's the business's interpretation.
+
+##### B. Handling Nulls Before Mathematical Operations
+*   **Problem**: Any mathematical operation (e.g., `+`, `-`) involving a **NULL will result in NULL**. This also applies to string concatenation (e.g., `NULL + 'B'` results in `NULL`).
+*   **Impact**: Leads to **unexpected or incomplete results** in calculations or concatenated fields.
+*   **Solution**: **Handle NULLs** by replacing them with an appropriate value (e.g., zero for numbers, an empty string for text) *before* performing operations.
+    *   Example: `first_name + ' ' + COALESCE(last_name, '')` ensures the full name is displayed even if the last name is missing.
+    *   Example: `COALESCE(score, 0) + 10` ensures bonus points are added even if the initial score is NULL.
+
+##### C. Handling Nulls Before Joins
+*   **Problem**: SQL's `EQUAL` operator (`=`) **cannot compare NULLs**. If join keys contain NULLs, those rows will **not match** and will be **missing** from the join result, leading to incomplete data.
+*   **Impact**: **Loss of records** and inaccurate analysis.
+*   **Solution**: **Handle NULLs within the join keys** by replacing them with a consistent, non-NULL default value (e.g., an empty string, a blank space, or any static value) using `ISNULL` or `COALESCE` in the `ON` clause of the join.
+    *   Example: `ON ISNULL(Table1.Key, '') = ISNULL(Table2.Key, '')`.
+    *   Note: Handling NULLs in the join clause does *not* change the original values displayed in the `SELECT` list; it only affects how rows are matched.
+
+##### D. Handling Nulls Before Sorting Data
+*   **Problem**: When sorting data, SQL places NULLs consistently:
+    *   **Ascending order**: NULLs appear **at the beginning** of the list.
+    *   **Descending order**: NULLs appear **at the end** of the list.
+    *   This is not because NULL is the lowest or highest value, but how SQL handles them.
+*   **Impact**: May not align with desired sorting logic, especially if NULLs are expected to appear last in ascending order.
+*   **Solutions**:
+    *   **"Lazy Way"**: Replace NULLs with a very large number (for ascending sort where NULLs should be last) or a very small number (for descending sort where NULLs should be first) using `COALESCE`. This is less professional as the static value might conflict with actual data values later.
+    *   **"Professional Way" (using `CASE WHEN`)**: Create a flag (e.g., 0 for non-NULL, 1 for NULL) and sort by this flag first, then by the original column. This pushes NULLs to the desired position without using arbitrary static values.
+        *   Example for NULLs appearing last in ascending order: `ORDER BY CASE WHEN score IS NULL THEN 1 ELSE 0 END ASC, score ASC`.
+
+#### 5. Advanced Join Types (using IS NULL)
+While SQL has standard `INNER JOIN`, `LEFT JOIN`, `RIGHT JOIN`, and `FULL JOIN`, two advanced types can be implemented using `IS NULL`:
+
+##### A. Left Anti Join
+*   **Purpose**: Returns all rows from the **left table that do NOT have a matching row** in the right table.
+*   **Implementation**: Combine a `LEFT JOIN` with a `WHERE` clause that checks if the **right table's join key is NULL**.
+    *   Example: `SELECT C.* FROM Customers C LEFT JOIN Orders O ON C.CustomerID = O.CustomerID WHERE O.CustomerID IS NULL`. This returns customers who have not placed any orders.
+
+##### B. Right Anti Join
+*   **Purpose**: Returns all rows from the **right table that do NOT have a matching row** in the left table.
+*   **Implementation**: Combine a `RIGHT JOIN` with a `WHERE` clause that checks if the **left table's join key is NULL**.
+***
 
 
 
