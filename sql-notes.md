@@ -29,6 +29,8 @@
 
 - [SQL Course 19: SQL NULL vs Empty String vs Blank Space Explained](#sql-course-19-sql-null-vs-empty-string-vs-blank-space-explained)
 
+- [SQL Course 20: SQL Case When Statement | Use Cases](#sql-course-20-sql-case-when-statement--use-cases)
+
 - [SQL Course 26: Why You Need These 5 SQL Techniques in Your SQL Project | Architecture](#sql-course-26-why-you-need-these-5-sql-techniques-in-your-sql-project--architecture)
 
 ## SQL Course 3: SQL Installation
@@ -872,6 +874,54 @@ NULLs are special and require specific handling in SQL:
     *   **Sorting** data.
 
 In essence, data management in SQL is like managing a pantry. A **NULL** is like an empty jar with no label—you don't know what was supposed to be in it, or if anything ever was. An **empty string** is an empty jar that's clearly labeled as "empty"—you know it's meant to hold nothing. A **blank space** is a jar labeled "empty" but secretly has a tiny speck of dust inside—it looks empty but isn't truly, and can cause unexpected issues if not properly cleaned out. Just as you'd want to organize your pantry to easily see what you have and what's truly missing, understanding and standardizing these 'empty' data states in SQL is crucial for accurate data analysis and decision-making.
+
+## SQL Course 20: SQL Case When Statement | Use Cases
+
+The `CASE` statement in SQL allows you to build **conditional logic** within your queries. It evaluates a list of conditions one by one and returns a value when the first condition is met.
+
+#### 1. Core Syntax and Execution
+*   **Keywords**: A `CASE` statement begins with the `CASE` keyword and ends with `END`.
+*   **Conditions**: Inside, conditions are defined using `WHEN` followed by the condition, and `THEN` followed by the result if that condition is true.
+    *   Example: `WHEN condition THEN result`.
+*   **Default Value**: `ELSE` introduces a default value that is returned if **none of the preceding `WHEN` conditions are met**.
+    *   `ELSE` is **optional**. If omitted and no conditions are met, the output will be `NULL`.
+*   **Order of Evaluation**: SQL processes conditions **from top to bottom**.
+    *   **Crucially, once a condition is found to be true, SQL stops evaluating any further conditions** and returns the corresponding `THEN` value. This means the order of your conditions is very important.
+
+#### 2. Key Rules
+*   **Data Type Matching**: The data types of all results (values after `THEN` and `ELSE`) **must match**. If they don't, SQL will throw an error.
+*   **Location**: `CASE` statements can be used **everywhere** in SQL queries, including `SELECT`, `JOIN`, `FROM`, `WHERE`, `GROUP BY`, and `ORDER BY` clauses.
+
+#### 3. Main Purpose and Use Cases
+
+The main purpose of the `CASE` statement is **data transformations**, especially for **generating new columns** and deriving new information from existing data without modifying the source database for analytical purposes.
+
+Here are the most useful use cases:
+
+*   **Categorizing Data**:
+    *   **Purpose**: To group data into different categories based on specific conditions. This makes data easier to understand, track, and aggregate for analysis and reporting.
+    *   **Example**: Classifying sales as "high" (sales > 50), "medium" (sales between 20 and 50), or "low" (sales ≤ 20).
+    *   This often involves creating a new category column and then aggregating data by these new categories.
+
+*   **Mapping Values**:
+    *   **Purpose**: To transform data from one form to another, making it more readable and usable for analytics. This is common when database values are stored as codes or flags (e.g., 0/1 for inactive/active) for performance optimization.
+    *   **Example**: Changing 'F' and 'M' in a gender column to 'Female' and 'Male'.
+    *   **Two Syntax Forms**:
+        *   **Full Form**: `CASE WHEN condition THEN result`. This is more flexible for complex logic and multiple columns/operators.
+        *   **Quick Form**: `CASE column_name WHEN value THEN result`. This form is **only applicable for evaluating a single column with an equality (`=`) operator**. It's shorter for simple mappings but less flexible. It is recommended to use the **full form** for better adaptability to future logic changes.
+
+*   **Handling Nulls**:
+    *   **Purpose**: To replace `NULL` values with a specific value to ensure more accurate calculations and avoid incorrect results in aggregations.
+    *   **Syntax**: `WHEN column_name IS NULL THEN replacement_value ELSE column_name`.
+    *   **Example**: Treating `NULL` scores as 0 when calculating an average score.
+
+*   **Conditional Aggregations**:
+    *   **Purpose**: To apply an aggregate function (e.g., `SUM`, `AVG`, `COUNT`) only on a **subset of data that meets specific conditions**. This is powerful for deep-dive or targeted analyses.
+    *   **Method**: Create a "flag" column using `CASE` (e.g., 1 if condition is true, 0 otherwise), then aggregate (e.g., `SUM` or `COUNT`) this flag column.
+    *   **Example**: Counting how many times each customer made an order with sales greater than 30.
+
+In essence, the `CASE` statement in SQL acts like a **smart traffic controller** for your data. It directs each piece of information down a specific path based on certain rules you define, ensuring that it arrives at the correct destination (a transformed value or category) or is counted/aggregated only when appropriate, much like a post office sorts mail into different bins based on their destination addresses.
+***
 
 
 
