@@ -31,6 +31,8 @@
 
 - [SQL Course 20: SQL Case When Statement | Use Cases](#sql-course-20-sql-case-when-statement--use-cases)
 
+- [SQL Course 21: SQL Aggregate Functions | COUNT, SUM, AVG, MAX, MIN](#sql-course-21-sql-aggregate-functions--count-sum-avg-max-min)
+
 - [SQL Course 26: Why You Need These 5 SQL Techniques in Your SQL Project | Architecture](#sql-course-26-why-you-need-these-5-sql-techniques-in-your-sql-project--architecture)
 
 ## SQL Course 3: SQL Installation
@@ -923,6 +925,52 @@ Here are the most useful use cases:
 In essence, the `CASE` statement in SQL acts like a **smart traffic controller** for your data. It directs each piece of information down a specific path based on certain rules you define, ensuring that it arrives at the correct destination (a transformed value or category) or is counted/aggregated only when appropriate, much like a post office sorts mail into different bins based on their destination addresses.
 ***
 
+## SQL Course 21: SQL Aggregate Functions | COUNT, SUM, AVG, MAX, MIN
+
+This video introduces **aggregate functions in SQL**. These functions are highlighted as being "amazing" and "really useful for insights" for data analysts or data scientists because they help **uncover insights about data**.
+
+**Key Characteristics of Aggregate Functions:**
+*   **Input:** They accept **multiple rows or multiple values** as input.
+*   **Output:** They always return **one single, aggregated value**.
+
+The video covers the following basic aggregate functions in SQL:
+
+1.  **`COUNT()`**
+    *   **Purpose:** To **count the number of rows** in a table.
+    *   **Example:** If there are four orders in the database, `COUNT(*)` would return `4` as the total number of orders. The function simply counts rows and does not consider the content or specific values within those rows.
+    *   **Syntax Example:** `SELECT COUNT(*) AS total_number_of_orders FROM orders`.
+
+2.  **`SUM()`**
+    *   **Purpose:** To **calculate the total sum of values** within a specified column.
+    *   **Example:** To find the total sales in the business, `SUM(sales)` would be used. If the sum of all sales values is `80`, the function returns `80`.
+    *   **Syntax Example:** `SELECT SUM(sales) AS total_sales FROM orders`.
+
+3.  **`AVG()`**
+    *   **Purpose:** To **calculate the average value** of a column.
+    *   **How it works:** It summarizes all the values in the column and then divides by the number of values (or orders in the example).
+    *   **Example:** If total sales are `80` from `4` orders, `AVG(sales)` would return `20` (80/4).
+    *   **Syntax Example:** `SELECT AVG(sales) AS average_sales FROM orders`.
+
+4.  **`MAX()`**
+    *   **Purpose:** To **find the highest (maximum) value** within a specified column.
+    *   **Example:** To find the highest sales amount, `MAX(sales)` would be used. If the highest sales value is `35`, the function returns `35`.
+    *   **Syntax Example:** `SELECT MAX(sales) AS highest_sales FROM orders`.
+
+5.  **`MIN()`**
+    *   **Purpose:** To **find the lowest (minimum) value** within a specified column.
+    *   **Example:** To find the lowest sales amount, `MIN(sales)` would be used. If the lowest sales value is `10`, the function returns `10`.
+    *   **Syntax Example:** `SELECT MIN(sales) AS lowest_sales FROM orders`.
+
+**Significance and Advanced Usage:**
+*   Aggregate functions are described as **"very simple but yet very powerful"**.
+*   They are fundamental for **exploring business performance** and understanding key business metrics like total orders or total sales.
+*   The true power of aggregate functions is unlocked when **combined with the `GROUP BY` clause**.
+    *   `GROUP BY` allows you to **break down "big numbers" into "smaller, more detailed numbers"**.
+    *   This means you can calculate aggregate values (like total sales, average sales, highest sales, lowest sales) **for specific categories or groups**, such as by customer ID, date, or country. This enables **drilling down into data for deeper insights** for each customer or category.
+    *   For example, you can find the total number of orders, total sales, average sales, highest sales, or lowest sales *for each customer*.
+
+In essence, SQL aggregate functions are like a **powerful calculator for your data**. While each function (COUNT, SUM, AVG, MAX, MIN) performs a specific mathematical operation to give you a single summary number for your entire dataset, combining them with `GROUP BY` is like adding a **segmentation tool**. It allows you to perform those same calculations, not just for the whole, but for each individual segment or category within your data, providing a much richer and more granular understanding.
+***
 
 
 
