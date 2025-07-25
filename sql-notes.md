@@ -972,6 +972,75 @@ The video covers the following basic aggregate functions in SQL:
 In essence, SQL aggregate functions are like a **powerful calculator for your data**. While each function (COUNT, SUM, AVG, MAX, MIN) performs a specific mathematical operation to give you a single summary number for your entire dataset, combining them with `GROUP BY` is like adding a **segmentation tool**. It allows you to perform those same calculations, not just for the whole, but for each individual segment or category within your data, providing a much richer and more granular understanding.
 ***
 
+## SQL Course 22: SQL Window Functions Basics | Partition By, Order By, Frame
+
+**SQL Window Functions: An Overview**
+
+SQL Window Functions, also known as analytical functions, are crucial for data analysis in SQL. They enable calculations, similar to aggregations, on subsets of data **without losing the row-level details** of the original data.
+
+**Key Differences from `GROUP BY`**
+
+| Feature           | `GROUP BY`                                      | Window Functions                                            |
+| :---------------- | :---------------------------------------------- | :---------------------------------------------------------- |
+| **Granularity**   | **Changes** the granularity of the output, summarizing rows into fewer result rows (e.g., smashing/squeezing results). | **Retains** the original granularity (same number of rows as input), allowing row-level calculations while performing aggregations. |
+| **Functions**     | Primarily for **aggregate functions** (`COUNT`, `SUM`, `AVG`, `MIN`, `MAX`). | Offers a **wider range of functions**, including aggregate, **ranking** (`ROW_NUMBER`, `RANK`, `NTILE`), and **value/analytical functions** (`LEAD`, `LAG`, `FIRST_VALUE`, `LAST_VALUE`). |
+| **Use Cases**     | Simple aggregations and analyses where losing detail is acceptable. | More **advanced and complex data analyses** where aggregations are needed alongside detailed row information. |
+| **Additional Info** | Difficult or impossible to include non-grouped columns in the `SELECT` clause without errors. | Allows adding **additional, non-aggregated columns** to the `SELECT` statement without errors. |
+
+**Syntax and Components of SQL Window Functions**
+
+The basic syntax of a window function involves two main parts:
+
+1.  **Window Function**: The actual function to be applied (e.g., `SUM(Sales)`, `AVG(Sales)`, `RANK()`). This can be an aggregate, ranking, or value function.
+    *   **Function Expression**: The argument passed to the function (e.g., `Sales` in `SUM(Sales)`). This can be a column name, a number, multiple values, or even a conditional logic expression. Data type restrictions apply based on the function (e.g., `SUM` requires numerical data, `COUNT` accepts any, ranking functions generally empty except `NTILE`).
+2.  **`OVER` Clause**: This keyword explicitly tells SQL that you are dealing with a window function and defines the "window" or scope of data for the calculation. The `OVER` clause itself is **optional** to include partitions, order, or frames inside it, but the `OVER` keyword is mandatory for a window function.
+
+Inside the `OVER` clause, you can define the window using three optional components:
+
+*   **`PARTITION BY`**:
+    *   Similar to `GROUP BY`, it **divides the entire dataset into groups (or "windows" / "partitions")**.
+    *   Calculations are then applied **independently to each window**.
+    *   **Options**:
+        *   **Empty `OVER()` (no `PARTITION BY`)**: The entire dataset is treated as one single window for calculation.
+        *   **Single Column**: `PARTITION BY ProductID` divides data by product.
+        *   **Multiple Columns**: `PARTITION BY ProductID, OrderStatus` divides data by combinations of these columns, creating more granular windows.
+    *   `PARTITION BY` is **optional** for all window functions.
+*   **`ORDER BY`**:
+    *   Used to **sort the data *within each window***.
+    *   It is **optional for aggregate functions** but **mandatory for ranking functions** (`RANK`, `ROW_NUMBER`, etc.) and **value functions** (`LEAD`, `LAG`, etc.) because sorting is essential for their logical operation.
+    *   Can specify ascending (`ASC`) or descending (`DESC`) order. Default is ascending.
+*   **`FRAME` Clause (`ROWS BETWEEN...` or `RANGE BETWEEN...`)**:
+    *   The most advanced part, it defines a **subset of rows *within each window*** that are relevant for the calculation.
+    *   Allows you to specify a "window inside a window" or a **"sliding scope"** for calculations.
+    *   **Requires `ORDER BY`** to be present in the `OVER` clause.
+    *   **Syntax**: `ROWS BETWEEN <lower_boundary> AND <upper_boundary>`.
+        *   **Boundaries**: Can be `CURRENT ROW`, `N PRECEDING`, `N FOLLOWING`, `UNBOUNDED PRECEDING` (start of window), or `UNBOUNDED FOLLOWING` (end of window). The lower boundary must always come before the higher boundary.
+        *   **Example**: `ROWS BETWEEN CURRENT ROW AND 2 FOLLOWING`.
+    *   **Default Frame**: If `ORDER BY` is used without a `FRAME` clause, the default frame is `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`. If `ORDER BY` is not used, the entire window (defined by `PARTITION BY` or the whole dataset) is considered.
+    *   **Shortcuts**: For `PROCEEDING` boundaries, you can use a shortcut like `ROWS N PRECEDING` (equivalent to `ROWS BETWEEN N PRECEDING AND CURRENT ROW`). This shortcut does not work for `FOLLOWING` boundaries.
+    *   **Scope within Partitions**: The frame's calculation **will not go outside its defined window/partition**.
+
+**Rules and Limitations of Window Functions**
+
+1.  **Placement**: Window functions can only be used in the **`SELECT` clause** and the **`ORDER BY` clause** of a query.
+2.  **Filtering**: You **cannot use window functions directly in the `WHERE` clause** to filter data.
+3.  **Grouping**: You **cannot use window functions directly in the `GROUP BY` clause**.
+4.  **Nesting**: You **cannot nest window functions** (i.e., use one window function inside another window function).
+5.  **Execution Order**: SQL executes the **`WHERE` clause (filtering) *before* calculating window functions**.
+6.  **Combined with `GROUP BY`**: You *can* use window functions together with a `GROUP BY` clause in the same query. The rule is that **any columns used within the window function's definition (specifically, those for partitioning or ordering) must also be part of the `GROUP BY` clause** if they are not aggregate functions. The recommended approach is to build the `GROUP BY` part first, then add the window function.
+
+**Analogy:**
+
+Think of SQL Window Functions as having a special magnifying glass and a notepad while looking at a large spreadsheet.
+
+*   **`GROUP BY`** is like taking the spreadsheet, cutting it into pieces (e.g., by product), and then **gluing each piece into a single summary page**. You get summary totals, but you lose the individual lines of detail that made up those totals.
+*   **Window Functions** are like looking at the *entire original spreadsheet* (retaining all details).
+    *   **`PARTITION BY`** is like drawing lines on the spreadsheet to highlight different sections (e.g., all "Caps" orders, all "Gloves" orders). You can then apply your magnifying glass to each section independently.
+    *   **`ORDER BY`** is like, within each highlighted section, arranging the rows in a specific order (e.g., by sales amount or date).
+    *   **The Window Function itself (e.g., `SUM`, `RANK`)** is the calculation you're doing with your magnifying glass.
+    *   **The `FRAME` clause** is like adjusting your magnifying glass to only look at a *specific small cluster of rows* within the larger highlighted section. As you move down the spreadsheet, you slide your magnifying glass, and the cluster of rows it sees changes, allowing you to calculate things like running totals or moving averages.
+    *   **The notepad** is where you write down the results of your calculations, adding a new column to the original spreadsheet *without removing any existing rows*.
+    ***
 
 
 
