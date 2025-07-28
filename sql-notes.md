@@ -33,6 +33,10 @@
 
 - [SQL Course 21: SQL Aggregate Functions | COUNT, SUM, AVG, MAX, MIN](#sql-course-21-sql-aggregate-functions--count-sum-avg-max-min)
 
+- [SQL Course 22: SQL Window Functions Basics | Partition By, Order By, Frame](#sql-course-22-sql-window-functions-basics--partition-by-order-by-frame)
+
+- [SQL Course 23: SQL Aggregate Window Functions | COUNT, AVG, SUM, MAX, MIN](#sql-course-23-sql-aggregate-window-functions--count-avg-sum-max-min)
+
 - [SQL Course 26: Why You Need These 5 SQL Techniques in Your SQL Project | Architecture](#sql-course-26-why-you-need-these-5-sql-techniques-in-your-sql-project--architecture)
 
 ## SQL Course 3: SQL Installation
@@ -1042,6 +1046,114 @@ Think of SQL Window Functions as having a special magnifying glass and a notepad
     *   **The notepad** is where you write down the results of your calculations, adding a new column to the original spreadsheet *without removing any existing rows*.
     ***
 
+# SQL Course 23: SQL Aggregate Window Functions | COUNT, AVG, SUM, MAX, MIN
+
+This video offers a comprehensive overview of five distinct window aggregate functions in SQL: COUNT, SUM, AVG, MIN, and MAX. It elucidates their fundamental concepts, syntax, and critical real-world use cases derived from practical projects.
+
+### 1. Core Concept of Aggregate Functions
+
+*   **Purpose**: SQL aggregate functions are designed to **summarize data** within a specified "window" or across the entire dataset.
+*   **Output**: They consistently return **one single aggregated value** for the window or the whole data. Examples include total sales, average values, or the count of records.
+*   **Key Distinction from GROUP BY**: While similar to `GROUP BY`, window aggregate functions **do not lose the detail** of the original data. They return an aggregated value for each row, preserving the granularity of the dataset.
+
+### 2. General Syntax
+
+Most aggregate functions adhere to a consistent syntax:
+`FUNCTION_NAME(expression) OVER (window_configuration)`
+
+*   **`FUNCTION_NAME`**: This is the specific aggregate function (e.g., `AVG`, `COUNT`, `SUM`, `MIN`, `MAX`).
+*   **`expression`**: This specifies the column or value on which the function will operate. It **cannot be left empty**.
+    *   For **all functions except `COUNT`**, the data type of this expression **must be a number**.
+    *   **`COUNT` is unique** as it accepts **all data types** (numbers, characters, dates, etc.) as an expression or argument.
+*   **`OVER()` (Window Configuration)**: This clause defines the "window" over which the aggregate function will operate. The **entire `OVER()` definition is optional** and can be left empty. It can include:
+    *   **`PARTITION BY`**: This optional clause divides the dataset into logical "partitions" or groups based on one or more columns. The aggregate function then operates independently within each partition.
+    *   **`ORDER BY`**: Also optional, this sorts the data within each window. Using `ORDER BY` with an aggregate function typically creates a "running total" or "moving average" effect by defining a default frame.
+    *   **`FRAME`**: This optional clause specifies the precise set of rows within the current window that the function will consider (e.g., `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`). If `ORDER BY` is used without an explicit `FRAME`, SQL applies a **default frame** of `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`.
+
+### 3. Specific Aggregate Functions and Their Use Cases
+
+#### 3.1. COUNT
+
+*   **Functionality**: Returns the **number of rows** within each window or dataset.
+*   **Syntax & NULL Handling**:
+    *   **`COUNT(*)` or `COUNT(1)`**: Counts all rows in the window, **including rows with NULL values**. NULLs are treated as valid rows for counting. The result for `COUNT(*)` and `COUNT(1)` is identical in performance and output.
+    *   **`COUNT(column_name)`**: Counts only the **non-NULL values** in the specified column within the window. It **ignores NULL values** in its calculation.
+*   **Data Types**: `COUNT` is the only aggregate function that accepts **any data type** (numbers, characters, dates, etc.) as its expression.
+*   **Important Use Cases**:
+    *   **Overall Analysis**: Provides a high-level overview of business data (e.g., total number of orders, customers, products).
+    *   **Category Analysis**: Using `PARTITION BY` to count items within specific groups (e.g., number of orders per customer), which helps in comparing categories and understanding customer behavior.
+    *   **Data Quality Check (Identifying NULLs)**: By comparing `COUNT(*)` (total rows) with `COUNT(column_name)` (non-NULL values in a column), you can quickly determine the number of NULLs in a field without manually checking records. This is vital for data quality.
+    *   **Identifying Duplicates**: A frequently used real-world application. By partitioning by a primary key (or unique identifier) and counting rows (`COUNT(*)`), you can identify duplicates where the count is greater than 1. This is a common data quality issue that can lead to flawed analyses. Subqueries are often used to filter out the duplicate records.
+
+#### 3.2. SUM
+
+*   **Functionality**: Returns the **total of all values** within each window.
+*   **NULL Handling & Data Type**: `SUM` **ignores NULL values** in its calculations. It **requires a numeric data type** for the expression.
+*   **Use Cases**:
+    *   **Overall Sales**: Calculates the total sales across the entire dataset.
+    *   **Sales by Group**: Aggregates sales for specific categories (e.g., total sales for each product) using `PARTITION BY`, enabling performance comparisons between products.
+    *   **Part-to-Whole Analysis**: Compares a current value (e.g., sales of a specific order) to an aggregated total (e.g., total sales), often used to calculate percentage contributions. This requires `CAST`ing one of the numbers to `FLOAT` to ensure accurate decimal results in division.
+
+#### 3.3. AVERAGE (AVG)
+
+*   **Functionality**: Computes the **arithmetic mean** of the values within each window.
+*   **Calculation**: Sum of all non-NULL values divided by the count of non-NULL rows.
+*   **NULL Handling**:
+    *   By default, `AVG` **ignores NULL values** in its calculation.
+    *   **Crucial Insight**: If, in the business context, a NULL represents a zero (e.g., no sales means 0 sales), then directly using `AVG` will yield an incorrect result. In such scenarios, it's necessary to **handle NULLs first by replacing them with zero** (e.g., using `COALESCE(column, 0)`) *before* applying the `AVG` function to ensure business-accurate averages.
+*   **Data Type**: Requires a **numeric data type** for the expression.
+*   **Use Cases**:
+    *   **Overall Average**: Calculates the average sales across all orders.
+    *   **Average by Group**: Computes the average sales for each product using `PARTITION BY`, enabling comparisons of average performance across different products.
+    *   **Comparison Analysis (Above/Below Average)**: Compares current values (e.g., sales of an order) to the overall average to determine if they are above or below the typical performance. **Window functions cannot be directly used in the `WHERE` clause for filtering**, so a subquery is required to achieve this.
+
+#### 3.4. MIN and MAX
+
+*   **Functionality**:
+    *   **MIN**: Returns the **lowest (minimum) value** within a window.
+    *   **MAX**: Returns the **highest (maximum) value** within a window.
+*   **NULL Handling & Data Type**: Both `MIN` and `MAX` **ignore NULL values** in their calculations. They **require a numeric data type** for the expression.
+    *   **Important Note on NULLs**: Similar to `AVG`, if a NULL logically means zero, replacing NULLs with zero using `COALESCE` will affect `MIN` (making zero potentially the new minimum) but will generally not affect `MAX` unless all values are negative and zero becomes the highest.
+*   **Use Cases**:
+    *   **Overall Min/Max**: Finds the highest or lowest sales across the entire dataset.
+    *   **Min/Max by Group**: Identifies the highest or lowest sales for each product using `PARTITION BY`, which helps in understanding the **range of values** within each group.
+    *   **Filtering Data (e.g., Top Performers)**: Used to identify records with extreme values (e.g., employees with the highest salaries). As with `AVG` for filtering, a **subquery is necessary** because window functions cannot be directly used in the `WHERE` clause.
+    *   **Deviation from Extremes**: Calculates the difference between a current value and the minimum or maximum value to understand how far a data point is from the extremes. This is valuable for analyzing data spread and identifying outliers.
+
+### 4. Running Total, Rolling Total, and Moving Average: Essential Concepts for Time-Series Analysis
+
+These are **crucial concepts** for data analysis and reporting, especially for tracking trends over time. Both involve aggregating a sequence of members, with the aggregation updating as new members are added.
+
+*   **Running Total (Cumulative Total)**:
+    *   **Concept**: Aggregates **all data from the very beginning up to the current data point**, without dropping any older data.
+    *   **How to Create in SQL**: Use an aggregate function (e.g., `SUM`, `AVG`, `COUNT`, `MAX`, `MIN`) **combined with `ORDER BY`** in the `OVER()` clause. When only `ORDER BY` is present, SQL uses a **default frame clause**: `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`.
+    *   **Use Cases**: Tracking progress (e.g., budget tracking, current total sales against a target), and historical analysis for trends.
+
+*   **Rolling Total (Sliding/Shifting Window Total)**:
+    *   **Concept**: Focuses on a **specific, fixed time window** (e.g., the last 3 months). As a new member enters the window, the oldest member exits, creating a "rolling" or "shifting" effect.
+    *   **How to Create in SQL**: Use an aggregate function **combined with `ORDER BY` AND a custom `FRAME` clause** (e.g., `ROWS BETWEEN 2 PRECEDING AND CURRENT ROW` for a 3-month window including the current month, or `ROWS BETWEEN CURRENT ROW AND 1 FOLLOWING` for the current and next row).
+    *   **Use Cases**: Focused analysis on specific recent periods (e.g., sales in the last 3 months), monitoring performance over a set duration.
+
+*   **Moving Average**:
+    *   A specific application of the running/rolling total concept that uses the `AVERAGE` function.
+    *   **Running Average**: Calculated using `AVG` with `ORDER BY` (implying the default frame) to show the cumulative average over time.
+    *   **Rolling Average (Fixed Frame)**: Calculated using `AVG` with `ORDER BY` and a custom `FRAME` clause (e.g., `ROWS BETWEEN CURRENT ROW AND 1 FOLLOWING` to average the current and next order).
+
+### 5. Overview of Window Function Use Cases Based on Window Definition
+
+The video highlights how simply changing the `OVER()` clause transforms the analytical purpose of aggregate functions.
+
+*   **Overall Total (Empty `OVER()`)**: When the `OVER()` clause is empty, the function aggregates the **entire dataset** and returns that single aggregated value for every row, providing an overall analysis.
+*   **Total Per Groups (`PARTITION BY`)**: Adding `PARTITION BY` splits the data into groups (categories), and the aggregation is performed independently for each group, enabling **comparisons between categories**.
+*   **Running Total (`ORDER BY`)**: Including `ORDER BY` (which implies a default frame) creates a **cumulative value** that tracks progress or performance over time.
+*   **Rolling Total (`ORDER BY` + Custom `FRAME`)**: Using `ORDER BY` with a **customized, fixed window frame** allows for tracking progress over a specific, defined period, such as the last N records or months.
+
+All aggregate functions (COUNT, SUM, AVG, MIN, MAX) can be used with these different window configurations to achieve various analytical insights.
+
+### Conclusion
+
+SQL window aggregate functions are incredibly powerful tools for data analytics. They allow for sophisticated data summarization and analysis without losing the detail of the underlying data, making them indispensable for reporting and understanding business performance. By simply modifying the window definition within the `OVER()` clause, a wide array of analytical use cases can be addressed, from overall summaries and category comparisons to identifying data quality issues (like duplicates), detecting outliers, and tracking trends over time.
+***
 
 
 
