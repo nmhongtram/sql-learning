@@ -37,6 +37,8 @@
 
 - [SQL Course 23: SQL Aggregate Window Functions | COUNT, AVG, SUM, MAX, MIN](#sql-course-23-sql-aggregate-window-functions--count-avg-sum-max-min)
 
+- [SQL Course 24: SQL Ranking Window Functions | ROW_NUMBER, RANK, DENSE_RANK, NTILE](#sql-course-24-sql-ranking-window-functions--row_number-rank-dense_rank-ntile)
+
 - [SQL Course 26: Why You Need These 5 SQL Techniques in Your SQL Project | Architecture](#sql-course-26-why-you-need-these-5-sql-techniques-in-your-sql-project--architecture)
 
 ## SQL Course 3: SQL Installation
@@ -1155,7 +1157,87 @@ All aggregate functions (COUNT, SUM, AVG, MIN, MAX) can be used with these diffe
 SQL window aggregate functions are incredibly powerful tools for data analytics. They allow for sophisticated data summarization and analysis without losing the detail of the underlying data, making them indispensable for reporting and understanding business performance. By simply modifying the window definition within the `OVER()` clause, a wide array of analytical use cases can be addressed, from overall summaries and category comparisons to identifying data quality issues (like duplicates), detecting outliers, and tracking trends over time.
 ***
 
+# SQL Course 24: SQL Ranking Window Functions | ROW_NUMBER, RANK, DENSE_RANK, NTILE
 
+This video teaches how to rank data using six different SQL window ranking functions, explaining their concepts, syntax, and important use cases.
+
+**Two Methods of Ranking**:
+1.  **Integer-Based Ranking:**
+    *   SQL assigns an integer (whole number) to each row based on its position in a sorted list.
+    *   The output consists of discrete, distinct values (e.g., 1, 2, 3, ... N).
+    *   **Purpose:** Ideal for "Top N" or "Bottom N" analysis, focusing on the position of a value within a list.
+    *   **Functions:** `ROW_NUMBER`, `RANK`, `DENSE_RANK`, `NTILE`.
+2.  **Percentage-Based Ranking:**
+    *   SQL calculates the relative position of a row compared to others and assigns a percentage (scale from 0 to 1).
+    *   The output is a normalized or continuous scale.
+    *   **Purpose:** Great for "distribution analysis," understanding the contribution of data values to the overall total.
+    *   **Functions:** `CUME_DIST`, `PERCENT_RANK`.
+
+**General Syntax Rules for Ranking Functions**:
+*   Most functions **do not accept any arguments** inside them (e.g., `RANK()`, `ROW_NUMBER()`). The only exception is `NTILE()`, which requires a number argument.
+*   The `ORDER BY` clause is **required** within the `OVER()` clause to sort the data for ranking.
+*   The `PARTITION BY` clause is **optional**; it divides the data into partitions, and the ranking resets for each partition.
+*   **Frame clauses are not allowed** with ranking functions.
+
+**Detailed Overview of Each Function**
+
+1.  **`ROW_NUMBER()`**
+    *   Assigns a **unique number** to each row as a rank.
+    *   **Does not handle ties**: If two rows have the same value, they will get different, distinct ranks.
+    *   **Does not leave gaps**: The ranks are consecutive (1, 2, 3, 4, 5...).
+    *   **Use Cases**:
+        *   **Top N / Bottom N Analysis:** Finding the top highest sales for each product, or lowest two customers based on total sales.
+        *   **Assigning Unique IDs:** Generating a unique identifier for each row in a table that lacks a primary key, useful for pagination, importing/exporting data, and joining tables.
+        *   **Identifying and Deleting Duplicates (Data Cleansing):** Used to find and remove duplicate rows, typically by ranking based on a timestamp to identify the latest valid record.
+
+2.  **`RANK()`**
+    *   Assigns a rank to each row.
+    *   **Handles ties**: If two or more rows have the same value, they will **share the same rank**.
+    *   **Leaves gaps**: It skips ranks after a tie. For example, if two rows tie for rank 2, the next rank will be 4, skipping 3 (like in the Olympics where no silver medal is given if there are two golds).
+
+3.  **`DENSE_RANK()`**
+    *   Very similar to `RANK()`.
+    *   Assigns a rank to each row.
+    *   **Handles ties**: If two or more rows have the same value, they will **share the same rank**.
+    *   **Does not leave gaps**: Unlike `RANK()`, it does not skip ranks after a tie. For example, if two rows tie for rank 2, the next rank will be 3.
+
+4.  **`NTILE(N)`**
+    *   Divides the rows in a dataset into a specified number (`N`) of **almost equal groups or buckets**.
+    *   It **must accept a number** as an argument, representing the number of buckets.
+    *   **Bucket Size Calculation**: `Number of Rows / Number of Buckets`.
+    *   If the division results in an odd number or decimal, SQL ensures that **larger groups come first**.
+    *   **Use Cases**:
+        *   **Data Segmentation:** Used by data analysts to segment data into categories (e.g., "high," "medium," "low" sales or customer groups) based on behavior or values.
+        *   **ETL Processing / Load Balancing:** Used by data engineers to split large tables into smaller, manageable chunks for more efficient data extraction, transformation, and loading (ETL), reducing network stress and load times.
+
+5.  **`CUME_DIST()` (Cumulative Distribution)**
+    *   A **percentage-based ranking function**.
+    *   Calculates the **distribution of data points** within a window as a percentage from 0 to 1.
+    *   **Formula**: `(Position Number of the Value) / (Total Number of Rows)`.
+    *   **Handles ties**: If there are ties, it considers the **last position** of the shared value in the sorted list for its calculation, making it more **inclusive**.
+    *   Purpose: Helps understand the distribution of data and the contribution of each value to the overall total.
+
+6.  **`PERCENT_RANK()`**
+    *   A **percentage-based ranking function**.
+    *   Calculates the **relative position** of each row within a window as a percentage from 0 to 1.
+    *   **Formula**: `(Position Number - 1) / (Total Number of Rows - 1)`.
+    *   **Handles ties**: If there are ties, it considers the **first occurrence** of the shared value in the sorted list for its calculation, making it more **exclusive**.
+    *   Purpose: Helps find the relative position of each row.
+
+**Comparison of `CUME_DIST` and `PERCENT_RANK`**:
+*   Both generate percentage-based ranks from 0 to 1.
+*   Both handle ties, meaning tied values share the same percentage rank.
+*   The main difference lies in their formulas and how they treat the current row's position relative to others (inclusive vs. exclusive).
+
+**Conclusion**
+SQL ranking window functions are powerful tools for data analysis and engineering. They are widely used for:
+*   Identifying top/bottom performers (`ROW_NUMBER`, `RANK`, `DENSE_RANK`).
+*   Data quality (finding and removing duplicates, `ROW_NUMBER`).
+*   Generating unique IDs for tables (`ROW_NUMBER`).
+*   Data segmentation (`NTILE`).
+*   Distribution analysis (`CUME_DIST`, `PERCENT_RANK`).
+*   ETL load balancing (`NTILE`).
+***
 
 
 
