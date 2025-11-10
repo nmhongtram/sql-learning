@@ -1,3 +1,5 @@
+# SQL Notes
+
 ## Table of Contents
 - [SQL Course 3: SQL Installation](#sql-course-3-sql-installation)
 
@@ -38,6 +40,8 @@
 - [SQL Course 23: SQL Aggregate Window Functions | COUNT, AVG, SUM, MAX, MIN](#sql-course-23-sql-aggregate-window-functions--count-avg-sum-max-min)
 
 - [SQL Course 24: SQL Ranking Window Functions | ROW_NUMBER, RANK, DENSE_RANK, NTILE](#sql-course-24-sql-ranking-window-functions--row_number-rank-dense_rank-ntile)
+
+- [SQL Course 25: SQL Value Window Functions | LEAD, LAG, FIRST_VALUE, LAST_VALUE](#sql-course-25-sql-value-window-functions--lead-lag-first_value-last_value)
 
 - [SQL Course 26: Why You Need These 5 SQL Techniques in Your SQL Project | Architecture](#sql-course-26-why-you-need-these-5-sql-techniques-in-your-sql-project--architecture)
 
@@ -1237,6 +1241,66 @@ SQL ranking window functions are powerful tools for data analysis and engineerin
 *   Data segmentation (`NTILE`).
 *   Distribution analysis (`CUME_DIST`, `PERCENT_RANK`).
 *   ETL load balancing (`NTILE`).
+***
+
+***
+
+# SQL Course 25: SQL Value Window Functions | LEAD, LAG, FIRST_VALUE, LAST_VALUE
+
+This video tutorial focuses on the most important category of window functions for data analytics: **Value Functions**, also known as analytical functions. Their primary purpose is to allow you to **access a specific value from another row** within the dataset or window, simplifying complex calculations and comparisons without complicated joins.
+
+### I. The Four Value Functions
+
+The tutorial covers four key value functions:
+
+1.  **LAG:** Allows you to access a value from a **previous row** within a window.
+2.  **LEAD:** Allows you to access a value from the **next row** within a window.
+3.  **FIRST_VALUE:** Allows you to access a value from the **first row** within a defined subset/window.
+4.  **LAST_VALUE:** Allows you to access a value from the **last row** within a defined subset/window.
+
+### II. Syntax Requirements and Rules
+
+While the functions have different requirements, they all share one critical rule: you **must use ORDER BY** to sort the data so SQL can determine the sequence (i.e., the "first," "last," "next," or "previous" row).
+
+| Feature | LEAD / LAG | FIRST_VALUE / LAST_VALUE | Notes |
+| :--- | :--- | :--- | :--- |
+| **Expression (Value)** | Required | Required (only argument for FIRST_VALUE) | Can use any data type (e.g., number, string, date). |
+| **ORDER BY** | Required (A must) | Required (A must) | Essential for defining the window sequence. |
+| **Offset/Default Value** | Optional | Not applicable | Offset specifies how many rows forward (LEAD) or backward (LAG) to jump (default is 1). The default value replaces NULL if no row is found. |
+| **Partition By** | Optional | Optional | Used to group data into separate windows. |
+| **Frame Clause** | Not Allowed | Optional, but different results based on usage | For **LAST_VALUE**, defining the frame clause is **highly recommended** or required to get the correct result, otherwise it defaults to an incorrect frame. |
+
+### III. Deep Dive: LEAD and LAG
+
+LEAD and LAG are often used together because they perform opposite actions.
+
+*   **Syntax Details:** They take up to three arguments: the `expression` (the value to retrieve), the `offset` (number of rows to look ahead/back, default is 1), and the `default value` (the value returned if the target row doesn't exist, default is NULL).
+*   **Example Usage:** If you are at the month of March, you use `LAG` to get the sales from February (the previous month), and `LEAD` to get the sales from April (the next month).
+*   **Practical Application:** They are crucial for **Time Series Analysis** and comparison analysis, such as **Month-over-Month (MoM) or Year-over-Year (YoY) analysis** to understand growth, decline, patterns, and seasonality.
+*   **Use Case Example (MoM Sales):** Using `LAG(SUM(sales))` allows you to calculate the previous month's sales, enabling you to find the absolute change and the percentage change between the current month and the previous month.
+*   **Use Case Example (Customer Retention):** Using the `LEAD` function on `order_date` helps determine the date of a customer's **next order** in the same row, allowing for the calculation of the average days between orders (`DATE_DIFF`).
+
+### IV. Deep Dive: FIRST_VALUE and LAST_VALUE
+
+These functions find extreme values within a window.
+
+*   **FIRST_VALUE:** Retrieves the value of the first row in the window. It works correctly even if you use the default frame definition.
+*   **LAST_VALUE:** Retrieves the value of the last row in the window. This function **will not work correctly** using the default frame definition because the window grows dynamically with the current row, often resulting in the current row's value.
+*   **Fixing LAST_VALUE:** To correctly obtain the last value, you must customize the frame clause, typically using: `ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING`.
+*   **Alternative Method:** You can achieve the same result as `LAST_VALUE` by using `FIRST_VALUE` and sorting the data in descending order (`ORDER BY sales DESC`).
+*   **Use Case Example (Finding Extremes):** They are used to find the **lowest sales** (using `FIRST_VALUE` with `ORDER BY sales ASC`) and the **highest sales** (using `LAST_VALUE` with a fixed frame, or `FIRST_VALUE` with `ORDER BY sales DESC`) for each product.
+
+### V. Summary of Analytical Use Cases
+
+Value functions are essential for complex data analysis:
+
+1.  **Time Series Analysis:** Performing MoM or YoY comparisons.
+2.  **Time Gap Analysis:** Analyzing time differences, such as calculating customer retention metrics (average days between orders).
+3.  **Comparison Analysis:** Comparing the current value to an extreme value (e.g., current sales vs. the highest/lowest sales for that product).
+
+These functions provide a way to access data from other rows easily, facilitating comparison analyzes that are frequently requested in business and data analysis contexts.
+***
+
 ***
 
 
