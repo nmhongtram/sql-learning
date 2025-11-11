@@ -1052,7 +1052,7 @@ Think of SQL Window Functions as having a special magnifying glass and a notepad
     *   **The notepad** is where you write down the results of your calculations, adding a new column to the original spreadsheet *without removing any existing rows*.
     ***
 
-# SQL Course 23: SQL Aggregate Window Functions | COUNT, AVG, SUM, MAX, MIN
+## SQL Course 23: SQL Aggregate Window Functions | COUNT, AVG, SUM, MAX, MIN
 
 This video offers a comprehensive overview of five distinct window aggregate functions in SQL: COUNT, SUM, AVG, MIN, and MAX. It elucidates their fundamental concepts, syntax, and critical real-world use cases derived from practical projects.
 
@@ -1161,7 +1161,7 @@ All aggregate functions (COUNT, SUM, AVG, MIN, MAX) can be used with these diffe
 SQL window aggregate functions are incredibly powerful tools for data analytics. They allow for sophisticated data summarization and analysis without losing the detail of the underlying data, making them indispensable for reporting and understanding business performance. By simply modifying the window definition within the `OVER()` clause, a wide array of analytical use cases can be addressed, from overall summaries and category comparisons to identifying data quality issues (like duplicates), detecting outliers, and tracking trends over time.
 ***
 
-# SQL Course 24: SQL Ranking Window Functions | ROW_NUMBER, RANK, DENSE_RANK, NTILE
+## SQL Course 24: SQL Ranking Window Functions | ROW_NUMBER, RANK, DENSE_RANK, NTILE
 
 This video teaches how to rank data using six different SQL window ranking functions, explaining their concepts, syntax, and important use cases.
 
@@ -1245,7 +1245,7 @@ SQL ranking window functions are powerful tools for data analysis and engineerin
 
 ***
 
-# SQL Course 25: SQL Value Window Functions | LEAD, LAG, FIRST_VALUE, LAST_VALUE
+## SQL Course 25: SQL Value Window Functions | LEAD, LAG, FIRST_VALUE, LAST_VALUE
 
 This video tutorial focuses on the most important category of window functions for data analytics: **Value Functions**, also known as analytical functions. Their primary purpose is to allow you to **access a specific value from another row** within the dataset or window, simplifying complex calculations and comparisons without complicated joins.
 
@@ -1302,13 +1302,6 @@ These functions provide a way to access data from other rows easily, facilitatin
 ***
 
 ***
-
-
-
-
-
-
-
 ## SQL Course 26: Why You Need These 5 SQL Techniques in Your SQL Project | Architecture 
 
 Five SQL techniques used to reduce and optimize the complexity of SQL queries, along with the reasons for their necessity and an overview of database architecture. The five techniques are:
@@ -1356,3 +1349,91 @@ When a simple `SELECT` query is sent from the client to the server, the database
 The understanding of these challenges and the database architecture provides the foundation for appreciating the importance and function of the five SQL techniques that will be explored further.
 ***
 
+***
+## SQL Course 27: SQL Subquery (Visually Explained) | Complete Guide with Correlated Subquery
+These are the notes for the video "SQL Subquery (Visually Explained) | Complete Guide with Correlated Subquery | #SQL Course 27":
+
+***
+
+## SQL Subqueries: Complete Guide (Visually Explained)
+
+This video provides a complete guide to SQL subqueries, covering their definition, different types, usage in various SQL clauses, and the logical operators commonly associated with them, as well as how SQL executes these queries step by step.
+
+### I. Definition and Execution
+
+A **subquery** is defined as a query located inside another query.
+*   The encompassing query is called the **main query** or **outer query**.
+*   The embedded query is the **subquery** or **inner query**.
+
+**Execution Flow:**
+1.  SQL first identifies and executes the subquery, retrieving data from the database tables.
+2.  The result of the subquery is an **intermediate result**. This result is temporary and not visible to the user.
+3.  The main query then interacts with this intermediate result, using it for filtering, joining, or other operations, or it may still query the original database tables.
+4.  Once the main query is executed, the final results are forwarded to the client side.
+5.  After the query execution is fully complete, the intermediate results (often stored in a temporary cache) are **destroyed and removed**.
+6.  The intermediate results are only locally known to the main query and are **not globally available** to any external query.
+
+**Purpose:**
+Subqueries are essential because they allow users to break down complex tasks into smaller, more manageable, and logically flowing pieces (e.g., preparation, joining, filtering, transformation, aggregation). This reduces complexity and makes the SQL code easier to write, read, and understand.
+
+### II. Types of Subqueries
+
+Subqueries can be categorized in three main ways:
+
+#### A. Based on the Result Type
+1.  **Scalar Subquery:** Returns **only one single value** (one row and one column). This type is required when using comparison operators and when placing a subquery in the `SELECT` clause. Aggregations (like `AVG` or `COUNT`) often produce scalar results.
+2.  **Row Subquery:** Returns **multiple rows** but only a **single column** (a list of values).
+3.  **Table Subquery:** Returns **multiple rows** and **multiple columns**, similar to a regular table.
+
+#### B. Based on Location (Clauses)
+Subqueries can be used in different locations within the main query:
+1.  **FROM Clause:** This is a common location. It creates temporary result sets (acting as a table) for the main query, often used to prepare the data. Subqueries in the `FROM` clause **must** be enclosed in parentheses and require an **alias** (mandatory in SQL Server).
+2.  **SELECT Clause:** Used to aggregate data alongside the main query columns. **Crucial Rule:** The subquery must be a **scalar subquery**.
+3.  **JOIN Clause:** Used to dynamically create a result set for joining with another table, essentially preparing the data before the join operation.
+4.  **WHERE Clause:** Used to filter data dynamically using complex logic. It works with comparison operators or logical operators (IN, ANY, ALL, EXISTS).
+
+#### C. Based on Dependency
+1.  **Noncorrelated Subquery:**
+    *   Is **independent** of the main query.
+    *   Executed **only once**. The result is a static value used by the main query (static comparison).
+    *   Generally easier to write, read, and offers better performance.
+    *   Can be executed on its own to see the intermediate results.
+2.  **Correlated Subquery:**
+    *   Is **dependent** on values from the main query.
+    *   Executed **for each row** that the main query processes (row-by-row comparison).
+    *   Generally harder to read and more complex, potentially leading to increased database effort due to multiple executions.
+    *   Cannot be executed independently because it relies on columns outside its own definition (from the main query).
+
+### III. Operators Used in the WHERE Clause
+
+Subqueries in the `WHERE` clause use two sets of operators: comparison operators and logical/subquery operators.
+
+#### A. Comparison Operators
+Operators such as `=`, `!=`, `>`, `<`, `>=`, and `<=` are used to compare a column value from the main table against the result of the subquery.
+*   **Constraint:** The subquery used with comparison operators must be a **scalar subquery** (returning only one value).
+
+#### B. Logical (Subquery) Operators
+These operators allow dynamic filtering based on a list or existence:
+1.  **IN / NOT IN:**
+    *   The `IN` operator checks whether a value matches **any value from a list**.
+    *   **Crucial Difference:** Unlike comparison operators, the subquery used with `IN` is allowed to return **multiple rows** (a list of values).
+    *   `NOT IN` checks if a value does *not* match any value in the list.
+2.  **ANY:**
+    *   Used with a comparison operator (e.g., `> ANY`, `< ANY`).
+    *   Checks if a condition is true for **at least one** of the values returned by the subquery.
+3.  **ALL:**
+    *   Used with a comparison operator (e.g., `> ALL`, `< ALL`).
+    *   Checks if a condition is true for **every value** in the list returned by the subquery.
+4.  **EXISTS / NOT EXISTS:**
+    *   **Purpose:** Checks the **existence** of rows in another table (used to check if the subquery returns any results).
+    *   **Syntax:** Used immediately after `WHERE` (`WHERE EXISTS (subquery)`); no column specification is needed before the operator.
+    *   **Mechanism:** `EXISTS` is always used with **correlated subqueries**, requiring a condition to connect the subquery to the main query (e.g., matching IDs).
+    *   **Logic:** If the subquery returns results for a given row, that row is included. If the subquery returns nothing, the row is excluded.
+    *   **Best Practice:** Use `SELECT 1` in the subquery, as the value being returned is irrelevant—only the fact of existence matters.
+    *   `NOT EXISTS` flips the logic, excluding the row if the subquery returns results.
+
+***
+To solidify understanding, think of subqueries as recipes: If your main dish (the main query) needs a specialized ingredient (the data), the subquery is a separate, dedicated prep station that creates that ingredient first, making sure it’s ready before the final assembly of the dish.
+
+*   A **noncorrelated subquery** is like prepping all the specialized ingredients *before* you start cooking the dish, using the batch for the entire process.
+*   A **correlated subquery** is like prepping a small amount of that specialized ingredient *every time* you handle a new piece of the main dish, customizing the ingredient preparation for that specific piece.
