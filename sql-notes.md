@@ -1816,3 +1816,55 @@ Think of a **Rowstore** like a **grocery store** where you have to buy a whole p
 Think of a **Unique Index** like a **list of Social Security Numbers**; the system checks every new entry to make sure no two people have the same number. 
 
 Think of a **Filtered Index** like a **VIP Guest List** for a club. Instead of having a massive directory of everyone in the city, the bouncer only carries a small, targeted list of people who are actually allowed to enter. It is much faster to find a name on that small list than to search through the entire city directory.
+
+***
+***
+## SQL Course 38: How to Choose the Right Index
+
+#### **1. Heap Structure (No Index)**
+*   **When to use:** Use this when you require **fast write performance (inserts)**.
+*   **Best use cases:** 
+    *   **Staging tables** where data is loaded quickly before processing.
+    *   **Temporary tables** where data is short-lived and will be deleted later.
+*   **Reasoning:** Since there is no index to maintain, SQL can write data as fast as possible without the overhead of sorting or updating index pages.
+
+#### **2. Clustered Index (Rowstore)**
+*   **When to use:** Primarily used for **Primary Keys** (this is often the database default).
+*   **Alternative candidates:** If a table has no primary key, choose a column where **sorting is important**, such as a **Date column**.
+*   **System type:** This is the standard choice for **OLTP (Online Transactional Processing)** systems that handle many individual transactions.
+
+#### **3. Columnstore Index**
+*   **When to use:** Ideal for **big, complex analytical queries** involving large-scale **data aggregations**.
+*   **Secondary benefit:** Use this if you are struggling with **table size**; it uses heavy compression to significantly reduce the storage footprint.
+*   **System type:** This is the preferred structure for **OLAP (Online Analytical Processing)** systems, such as Data Warehouses and Business Intelligence reporting.
+
+#### **4. Non-Clustered Index**
+*   **When to use:** Applied to **non-primary key columns** that are frequently queried.
+*   **Common targets:**
+    *   **Foreign Keys**.
+    *   Columns used to **join** two or more tables.
+    *   Columns frequently used in the **WHERE clause** of a query.
+
+#### **5. Filtered Index**
+*   **When to use:** Use this to **target a specific subset of data** that is analyzed frequently.
+*   **Key advantages:**
+    *   Provides a **focused index** rather than one massive index for all data.
+    *   **Reduces storage size** by only indexing relevant rows.
+
+#### **6. Unique Index**
+*   **When to use:** Use this to **ensure data integrity** by preventing duplicate values in a column.
+*   **Performance boost:** It can slightly improve query speed because once SQL finds a match, it **stops searching** immediately, knowing no other duplicates exist.
+
+***
+
+**Summary Table for Quick Reference**
+
+| If you need... | Use this Index Type |
+| :--- | :--- |
+| **Fast Inserts** | Heap (No Index) |
+| **Primary Keys / Sorting** | Clustered Index |
+| **Aggregations / Big Data** | Columnstore Index |
+| **Joins / Filtering** | Non-Clustered Index |
+| **Specific Subsets** | Filtered Index |
+| **Data Integrity** | Unique Index |
+
