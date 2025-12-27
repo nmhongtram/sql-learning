@@ -1666,3 +1666,60 @@ According to the sources, the preferred order of use for these techniques is typ
 
 **Analogy for Understanding:**
 Think of a **Subquery/CTE** as a **mental calculation** (gone as soon as you finish the thought). A **Temporary Table** is like a **scratchpad** (useful during one study session but thrown away after). A **View** is like a **live-stream camera** pointed at a scene (always shows what is happening right now). A **CTAS Table** is like a **photograph** of that same scene (it captures the moment perfectly and is fast to look at, but it won't change if the scene itself changes).
+
+***
+***
+## SQL Course 33: SQL Indexes (Clustered vs. Non-clustered)
+
+#### **1. Introduction to Indexes**
+*   **Definition:** An index is a **data structure** that provides quick access to rows, significantly improving the speed of data retrieval (queries).
+*   **Purpose:** It acts as a guide for the database to find data without scanning every single page, especially in large tables.
+*   **Analogy:**
+    *   Like an **index at the back of a huge book** that helps you jump straight to the right page.
+    *   Like a **map in a large hotel** that tells you exactly which floor and room to go to, instead of checking every door.
+
+#### **2. How Data is Stored (The Basics)**
+*   **Pages:** The fundamental unit of data storage (fixed size of **8 KB**). Databases do not store data simply as rows and columns; they store them in **Data Pages** and **Index Pages**.
+*   **Page Structure:** Contains a **Page Header** (metadata), **Data Rows**, and an **Offset Array** (which tracks where each row begins for quick internal location).
+*   **Heap Structure:** A table **without a clustered index**. Data is stored randomly in the order it was inserted.
+    *   **Pros:** Very fast for writing (inserting) data.
+    *   **Cons:** Very slow for reading (searching) because the database must perform a **Full Table Scan** (scanning every page and row) to find a specific record.
+
+#### **3. Clustered Index**
+*   **Mechanism:** When created, it **physically reorders and sorts** all data in the table based on the indexed column (e.g., from lowest to highest ID).
+*   **Structure:** Uses a **B-Tree (Balanced Tree)** structure with a Root node, Intermediate nodes, and Leaf nodes.
+*   **Key Characteristic:** The **Leaf nodes contain the actual data pages**.
+*   **Limitations:** You can only have **one clustered index per table** because data can only be physically sorted in one way.
+*   **Best Practice:** Usually applied to **Primary Keys** because they are unique and rarely change.
+
+#### **4. Non-Clustered Index**
+*   **Mechanism:** It is a **separate structure** that coexists with the data. It does **not** change the physical order of the actual data pages.
+*   **Structure:** Also uses a B-Tree, but the **Leaf nodes contain pointers** (Row Identifiers - RID) that point to the exact location of the data in the data pages.
+*   **Limitations:** You can create **multiple non-clustered indexes** on a single table.
+*   **Read Performance:** Slightly slower than clustered indexes because of the **extra layer** (the pointer) that SQL must follow to find the actual data.
+
+#### **5. Comparison Summary**
+| Feature | Clustered Index | Non-Clustered Index |
+| :--- | :--- | :--- |
+| **Physical Sorting** | Physically reorders data. | Does not reorder data. |
+| **Leaf Level** | Contains the **actual data**. | Contains **pointers** to data. |
+| **Quantity** | **Only 1** per table. | **Multiple** allowed. |
+| **Read Speed** | Faster. | Slower (extra jump). |
+| **Write Speed** | Slower (requires re-sorting). | Faster than clustered. |
+| **Storage** | More efficient. | Uses more space for index pages. |
+
+#### **6. Composite Indexes & Leftmost Prefix Rule**
+*   **Composite Index:** An index created on **multiple columns**.
+*   **Importance of Order:** The order of columns in the index must match the order in your query's `WHERE` clause.
+*   **Leftmost Prefix Rule:** SQL can use a composite index if you filter by the **leftmost columns**. If you skip the first column in your query, the index will not be used.
+    *   *Example:* If an index is on `(Country, Score)`, a query for `Country` uses the index, but a query for only `Score` does not.
+
+#### **7. SQL Syntax**
+*   **Create Clustered:** `CREATE CLUSTERED INDEX IX_TableName_Column ON Table(Column);`
+*   **Create Non-Clustered:** `CREATE INDEX IX_TableName_Column ON Table(Column);` (Non-clustered is the default).
+*   **Drop Index:** `DROP INDEX IndexName ON TableName;`
+
+***
+
+**Analogy for Understanding:**
+Think of a **Clustered Index** like the **Table of Contents** at the front of a book; the chapters (data) follow the exact order listed. Think of a **Non-Clustered Index** like the **Index at the back of the book**; it is a separate list of keywords with page numbers (pointers) that tell you where to look, even if the book itself isn't organized by those keywords.
