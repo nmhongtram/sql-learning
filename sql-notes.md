@@ -1616,3 +1616,53 @@ Think of a **CTAS Table** as a **frozen pizza from a grocery store**. It was pre
 
 **Analogy for Understanding:**
 Think of a **Permanent Table** like a **Physical Notebook** where you write things down in ink; it stays on your shelf until you throw it away. A **Temporary Table** is like a **Whiteboard** in a meeting room. You use it to work through complex ideas during your meeting (the session). Once the meeting is over and everyone leaves, the janitor (the database engine) comes in and wipes the board clean for the next group.
+
+***
+***
+## SQL Course 32: SQL Subquery vs CTE vs View vs CTAS vs TEMP
+
+#### **1. Introduction**
+In real-world data projects, complex analytical use cases often lead to challenges such as **code complexity**, **logic redundancy** (multiple users writing the same complex logic), **performance issues**, and **security concerns**. To address these, SQL provides five primary techniques: Subqueries, CTEs, Views, CTAS, and Temporary Tables.
+
+---
+
+#### **2. Comparative Analysis**
+
+| Criteria | Subqueries & CTEs | Temporary Tables | CTAS (Tables) | Views |
+| :--- | :--- | :--- | :--- | :--- |
+| **Storage Type** | **Memory (Cache)** for fast access to intermediate results. | **Disk Storage**. | **Disk Storage**. | **No data storage** (stores only logic). |
+| **Lifetime** | **Temporary:** Lives only during the execution of the query. | **Temporary:** Lives as long as the current **session** is active. | **Permanent:** Lives until explicitly dropped. | **Permanent:** Lives until explicitly dropped. |
+| **Deletion** | Automatic cleanup after query ends. | Automatic cleanup after session ends. | Manual cleanup via `DROP` command. | Manual cleanup via `DROP` command. |
+| **Scope** | Small: Accessed only from **one single query**. | Multiple external queries within the same session. | Multiple external queries. | Multiple external queries. |
+| **Data Freshness**| **Always up-to-date:** Executed on-the-fly. | **Static/Snapshot:** Data does not update if source tables change. | **Static/Snapshot:** Data does not update automatically. | **Always up-to-date:** Fetches fresh data from source every time. |
+
+---
+
+#### **3. Reusability Breakdown**
+*   **Subqueries:** Lowest reusability; they can only be used in one place within one query. To use them elsewhere, the logic must be repeated.
+*   **CTEs:** Slightly better; can be referenced multiple times within the same query (e.g., in different joins) without repeating the logic.
+*   **Temporary Tables:** Medium reusability; accessible by multiple queries but only within the active session.
+*   **CTAS & Views:** Highest reusability; they are persistent objects available to multiple users across multiple queries, eliminating redundancy.
+
+---
+
+#### **4. Strategic Ranking & Use Cases**
+According to the sources, the preferred order of use for these techniques is typically:
+1.  **Views:** The top choice for persisting logic and ensuring fresh data for all users.
+2.  **CTEs:** Excellent for organizing single-query logic, but it is recommended to use **fewer than five** in a single query to maintain readability.
+3.  **Subqueries:** Useful for simple, two-step data preparation within a query.
+4.  **CTAS (Physical Tables):** Use primarily when **Views are too slow** (e.g., taking 30+ minutes). Materializing the result into a physical table improves performance for other analysts.
+5.  **Temporary Tables:** Least frequently used; primarily for intermediate session-based storage.
+
+---
+
+#### **5. Real-World Workflow Example**
+1.  **Creation:** A Data Engineer creates a physical table and populates it using `INSERT`.
+2.  **Analysis:** A Data Analyst uses **Subqueries** or **CTEs** to handle complex logic for specific reports.
+3.  **Persistence:** If the logic is useful for others, it is saved as a **View** so multiple users can benefit without rewriting code.
+4.  **Optimization:** If the View becomes too slow due to complexity, it is converted into a physical table via **CTAS** to provide faster access to the results.
+
+***
+
+**Analogy for Understanding:**
+Think of a **Subquery/CTE** as a **mental calculation** (gone as soon as you finish the thought). A **Temporary Table** is like a **scratchpad** (useful during one study session but thrown away after). A **View** is like a **live-stream camera** pointed at a scene (always shows what is happening right now). A **CTAS Table** is like a **photograph** of that same scene (it captures the moment perfectly and is fast to look at, but it won't change if the scene itself changes).
