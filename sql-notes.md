@@ -1777,3 +1777,42 @@ The process involves four main steps:
 
 **Analogy for Understanding:**
 Think of a **Rowstore** like a **grocery store** where you have to buy a whole pre-packaged **meal kit** just to get the salt inside; you end up carrying a lot of heavy items you don't need. A **Columnstore** is like a **bulk-buy aisle** where all the salt is in one giant bin, all the sugar in another, and all the flour in a third; if you only need salt, you go straight to that bin and take exactly what you need without touching anything else.
+
+## SQL Course 37: SQL Unique & Filtered Indexes 
+
+### **1. Unique Indexes**
+*   **Definition:** A special index type that ensures no duplicate data exists within the indexed column(s).
+*   **Key Benefits:**
+    *   **Data Integrity:** It enforces business rules by preventing "sneaky duplicates" in critical columns like email addresses or product IDs.
+    *   **Performance Optimization:** When searching for a value, the SQL engine stops immediately once the match is found because it is guaranteed that no other duplicates exist.
+*   **The Trade-off:**
+    *   **Slower Writes:** Inserting or updating data is slower compared to a normal clustered index because SQL must perform the extra task of verifying that the new data does not violate the uniqueness rule.
+    *   **Faster Reads:** The query performance is generally optimized and faster than a standard non-unique index.
+*   **Constraints:** You cannot create a unique index on a column that already contains duplicate values; the table must either be empty or the data must be cleaned first.
+
+### **2. Filtered Indexes**
+*   **Definition:** A regular index with a "twist"—it only includes rows that meet a specific condition defined by a `WHERE` clause.
+*   **Mechanism:** Only the data fulfilling the condition is stored in the Leaf nodes of the B-Tree structure. This results in a smaller B-Tree compared to a full non-clustered index.
+*   **Key Benefits:**
+    *   **Targeted Optimization:** If your analysis consistently focuses on a specific subset (e.g., only "Active" customers or customers from "USA"), a filtered index makes queries much faster for that subset.
+    *   **Storage Efficiency:** Because the index is smaller, it requires significantly less storage space in the database.
+*   **Limitations and Restrictions:**
+    *   **Non-clustered Only:** You cannot create a filtered index on a clustered index because a clustered index must represent the entire table.
+    *   **Rowstore Only:** It is not allowed on Columnstore indexes.
+    *   **Scope:** If a query filters for data outside the index's condition (e.g., searching for "Germany" when the index is filtered for "USA"), the index will not be used, and performance will be slower.
+
+### **3. Combining Index Types**
+*   **Unique + Filtered:** You can combine these two types to create a **Unique Filtered Index**.
+*   **Syntax:** `CREATE UNIQUE NONCLUSTERED INDEX [Index_Name] ON [Table]([Column]) WHERE [Condition];`.
+*   **Default Behavior:** If you do not specify the "Unique" keyword when creating an index, SQL allows duplicates by default.
+
+### **4. Summary of Syntax**
+*   **Unique Index:** `CREATE UNIQUE [CLUSTERED/NONCLUSTERED] INDEX [Name] ON [Table]([Column]);`.
+*   **Filtered Index:** `CREATE NONCLUSTERED INDEX [Name] ON [Table]([Column]) WHERE [Condition];`.
+
+***
+
+**Analogy for Understanding:**
+Think of a **Unique Index** like a **list of Social Security Numbers**; the system checks every new entry to make sure no two people have the same number. 
+
+Think of a **Filtered Index** like a **VIP Guest List** for a club. Instead of having a massive directory of everyone in the city, the bouncer only carries a small, targeted list of people who are actually allowed to enter. It is much faster to find a name on that small list than to search through the entire city directory.
