@@ -1350,12 +1350,7 @@ The understanding of these challenges and the database architecture provides the
 ***
 
 ***
-## SQL Course 27: SQL Subquery (Visually Explained) | Complete Guide with Correlated Subquery
-These are the notes for the video "SQL Subquery (Visually Explained) | Complete Guide with Correlated Subquery | #SQL Course 27":
-
-***
-
-## SQL Subqueries: Complete Guide (Visually Explained)
+## SQL Course 27: SQL Subquery 
 
 This video provides a complete guide to SQL subqueries, covering their definition, different types, usage in various SQL clauses, and the logical operators commonly associated with them, as well as how SQL executes these queries step by step.
 
@@ -1437,3 +1432,145 @@ To solidify understanding, think of subqueries as recipes: If your main dish (th
 
 *   A **noncorrelated subquery** is like prepping all the specialized ingredients *before* you start cooking the dish, using the batch for the entire process.
 *   A **correlated subquery** is like prepping a small amount of that specialized ingredient *every time* you handle a new piece of the main dish, customizing the ingredient preparation for that specific piece.
+
+## SQL Course 28: SQL CTE (Common Table Expression) 
+
+### 1. What is a CTE?
+*   **Definition:** A Common Table Expression (CTE) is a **temporary named result set** that acts like a virtual table. 
+*   **Purpose:** It is used within a larger query to simplify and organize complex logic.
+*   **Execution Flow:**
+    1.  SQL executes the CTE query first.
+    2.  The results are stored in a **high-speed cache** memory.
+    3.  The main query retrieves data from this cache instead of the disk storage, which is much faster.
+    4.  Once the query execution ends, SQL performs a "cleanup" and **destroys the temporary table**; it is not available for later use.
+
+### 2. CTE vs. Subqueries
+*   **Logic Direction:** Subqueries are written from bottom-to-top, whereas CTEs are written from **top-to-bottom**, following a more logical flow.
+*   **Reusability:** A subquery can only be used once in a specific position. In contrast, a CTE can be **referenced multiple times** (joined or selected) within the same main query.
+*   **Redundancy:** CTEs eliminate the need to repeat the same subquery logic multiple times, reducing code size and potential errors.
+
+### 3. Key Advantages
+*   **Readability:** Divides code into clear, named sections, making it easier for others to understand.
+*   **Modularity:** Breaks a huge, complex problem into smaller, manageable, self-contained chunks.
+*   **Maintenance:** If business logic changes, you only need to update it once in the CTE definition rather than in multiple places.
+
+### 4. Types of CTEs
+*   **Standalone CTE:** The simplest form where the CTE is independent and does not rely on other CTEs.
+*   **Multiple CTEs:** You can define several CTEs in one query by using a single `WITH` keyword at the start and separating each definition with a **comma**.
+*   **Nested CTE:** A CTE that references the result of a previously defined CTE. This creates a chain of logic but makes the CTE dependent on others.
+*   **Recursive CTE:** A self-referencing query used to navigate **hierarchical structures** (like employee-manager relationships). It consists of:
+    *   **Anchor Query:** The starting point or first iteration (e.g., finding the CEO).
+    *   **Recursive Query:** The part that loops and adds data until a condition is met.
+    *   **UNION ALL:** Used to connect the anchor and recursive parts.
+
+### 5. Syntax and Rules
+*   **Basic Syntax:** `WITH CTE_Name AS ( SELECT ... ) SELECT ... FROM CTE_Name;`.
+*   **Naming:** You must use the exact name defined in the `WITH` clause when referencing it in the main query.
+*   **Order By Restriction:** You **cannot** use `ORDER BY` inside a CTE definition; sorting should only be done in the main query.
+*   **Recursion Limit:** SQL typically limits recursions to 100 by default to prevent infinite loops, but this can be adjusted using the `MAXRECURSION` option.
+
+### 6. Best Practices
+*   **Don't Overuse:** While powerful, having too many nested CTEs (e.g., more than 20) makes code impossible to read and can hurt performance.
+*   **Target Range:** A good rule of thumb is to keep a query between **3 to 5 CTEs**.
+*   **Refactor:** If you have too many steps, try to merge related CTEs or split them into separate queries.
+
+***
+
+**Analogy for Understanding:**
+Think of a CTE as a **temporary sticky note** you write for yourself while solving a long math problem. You calculate a specific part, write the result on the note, and give it a name like "Part A." For the rest of the problem, you just look at "Part A" instead of doing that long calculation again. Once the problem is solved, you throw the sticky note away.
+***
+***
+## SQL Course 29: SQL Views
+
+### 1. Introduction to SQL Views
+*   **Definition:** A view is a **virtual table** in SQL based on the result of a stored query. 
+*   **Storage:** Unlike physical tables, views **do not store data** themselves. Instead, they store the **metadata** and the **SQL query logic** in the system catalog.
+*   **Execution:** When a user queries a view, the SQL engine retrieves the stored query, executes it against the underlying physical tables, and presents the result to the user.
+
+### 2. Database Structure and the Three-Level Architecture
+The sources describe a hierarchy where the **SQL Server** is the top node, followed by **databases**, **schemas** (logical groupings), **tables/views**, and finally **columns/rows**. To manage this, SQL uses a **Three-Level Architecture** to abstract data:
+1.  **Physical Level (Internal):** The lowest level where data is physically stored in files and blocks; managed by DBAs.
+2.  **Logical Level (Conceptual):** Where developers define tables, relationships, and schemas.
+3.  **View Level (External):** The highest level of abstraction; it provides customized, user-friendly data for specific applications or business analysts.
+
+### 3. Key Comparisons
+#### **Views vs. Tables**
+*   **Persistence:** Tables persist data physically on disk; views only persist the logic.
+*   **Maintenance:** Tables are hard to change (requiring migrations); views are flexible—you only need to update the underlying query.
+*   **Performance:** Tables are generally faster. Querying a view involves running two queries: the user's query and the view's internal query.
+*   **Permissions:** Tables are read/write; views are typically **read-only**.
+
+#### **Views vs. CTEs (Common Table Expressions)**
+*   **Scope:** CTEs reduce redundancy within a **single query** and are temporary. Views reduce redundancy across **multiple queries** and are persistent objects in the database.
+*   **Cleanup:** SQL automatically cleans up CTEs after execution; views require manual DDL commands (CREATE/DROP) to manage.
+
+### 4. Six Top Use Cases for Views
+1.  **Storing Central Logic:** Instead of multiple analysts writing the same complex joins and aggregations (like monthly sales summaries), the logic is stored in a view for everyone to reuse.
+2.  **Hiding Complexity:** Views act as an abstraction layer, turning cryptic technical tables into "friendly" objects with clear English names and combined details from multiple tables.
+3.  **Implementing Security:** 
+    *   **Column-level security:** Hiding sensitive columns (e.g., salary or department) from certain users.
+    *   **Row-level security:** Filtering specific rows (e.g., showing only EU sales data to the EU team and excluding USA data).
+4.  **Flexibility and Freedom:** Views decouple the user from the physical data model. Developers can rename or split physical tables without breaking user queries, as long as they update the view's query logic.
+5.  **Multilingual Support:** Views can be used to translate table and column names into different languages (e.g., German or Hindi) for international teams.
+6.  **Virtual Data Marts:** In data warehousing, views are preferred over tables for the "Data Mart" layer to ensure a **single point of truth** and avoid the chaos of physical data duplication.
+
+### 5. Essential Syntax (DDL Commands)
+*   **Create:** `CREATE VIEW schema_name.view_name AS (SELECT ...)`.
+*   **Drop (Delete):** `DROP VIEW schema_name.view_name`.
+*   **Update:** In SQL Server, you cannot "replace" a view directly. You must either **Drop and Recreate** it or use a **T-SQL script** to check if the object ID exists before dropping and creating.
+*   **Schemas:** If no schema is specified, the view is created in the default **dbo** schema.
+
+***
+
+**Analogy for Understanding:**
+Think of a physical table as a **storage warehouse** full of raw crates (data). A **SQL View** is like a **display window** at the front of the store. The customers (users) don't go into the warehouse; they just look through the window, which shows them exactly what they need to see, neatly arranged and labeled, without them needing to know how the warehouse is organized behind the scenes.
+
+## SQL Course 30: SQL CTAS (Create Table As Select)
+
+### 1. Introduction to Database Tables
+*   **Definition:** A table is a structured collection of data, similar to a spreadsheet, consisting of **columns** (fields like ID, Name) and **rows** (records/entries).
+*   **Storage:** Unlike views, tables are stored **physically** as database files on disk storage.
+*   **Three-Level Architecture:** Tables exist at the **Logical/Conceptual level**. They provide an abstraction so users don't have to deal with the complexity of the Physical level (disk blocks/files).
+*   **Permanence:** Tables are **permanent objects**; they stay in the database until they are explicitly dropped, unlike temporary tables which are deleted when a session ends.
+
+### 2. Two Ways to Create Tables
+*   **Method 1: Create + Insert (The Classical Way):** 
+    *   **Step 1:** Use `CREATE TABLE` to define the structure (columns, data types) of an empty table.
+    *   **Step 2:** Use `INSERT INTO` to populate the table with data from various sources (CSV, migration, manual entry).
+*   **Method 2: CTAS (Create Table As Select):** 
+    *   A one-step process where a new table is created and populated based on the **result set of a query**.
+    *   The table's structure (column names and data types) is automatically defined by the query results.
+
+### 3. Syntax for CTAS
+*   **Standard SQL (MySQL, PostgreSQL, Oracle):**
+    `CREATE TABLE table_name AS (SELECT ... FROM ...);`
+*   **SQL Server (T-SQL):**
+    Uses the `INTO` keyword between `SELECT` and `FROM`:
+    `SELECT columns INTO new_table_name FROM original_table;`
+
+### 4. CTAS Tables vs. SQL Views
+| Feature | SQL View | CTAS Table |
+| :--- | :--- | :--- |
+| **Data Storage** | Stores only the query logic (metadata); no data stored. | Stores the query logic **and** the actual data result. |
+| **Performance** | **Slower.** Every time a user queries a view, the database must execute the underlying complex query. | **Faster.** The query is already executed; users fetch results directly from the table. |
+| **Data Freshness** | **Real-time.** Always shows the latest updates from the original tables. | **Static/Snapshot.** Data becomes "stale" and does not update automatically when original tables change. |
+| **Maintenance** | Easy to maintain logic. | Harder to maintain; requires manual or scheduled refreshes. |
+
+### 5. Key Use Cases for CTAS
+*   **Optimizing Slow Logic:** If a View takes too long (e.g., 30+ minutes) to run, use CTAS to "materialize" the result into a table overnight so users get instant results in the morning.
+*   **Data Quality Snapshots:** Creating a persistent snapshot of data at a specific time to analyze quality issues without the data changing during the analysis.
+*   **Physical Data Marts:** In data warehousing, converting virtual data marts (views) into physical tables to speed up PowerBI reports and dashboards.
+
+### 6. Refreshing and Maintaining CTAS Tables
+*   **Manual Refresh:** To update data, you must **Drop** the existing table and **Recreate** it with the CTAS query.
+*   **Automation (T-SQL):** You can use an `IF` statement with `OBJECT_ID` to check if a table exists, drop it if it does, and then recreate it in a single script.
+    *   *Example logic:* `IF OBJECT_ID('table_name') IS NOT NULL DROP TABLE table_name;`
+
+***
+
+**Analogy for Understanding:**
+Think of a **View** as ordering a **fresh pizza at a restaurant**. Every time you "query" (order), the chef makes it from scratch with fresh ingredients. It's hot and fresh, but you have to wait.
+Think of a **CTAS Table** as a **frozen pizza from a grocery store**. It was prepared earlier and stored. It’s much faster to "eat" (query) because it's already made, but it's only as fresh as the day it was frozen. If you want a new one, you have to replace it.
+
+***
+***
