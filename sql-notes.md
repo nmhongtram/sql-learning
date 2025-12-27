@@ -1723,3 +1723,57 @@ Think of a **Subquery/CTE** as a **mental calculation** (gone as soon as you fin
 
 **Analogy for Understanding:**
 Think of a **Clustered Index** like the **Table of Contents** at the front of a book; the chapters (data) follow the exact order listed. Think of a **Non-Clustered Index** like the **Index at the back of the book**; it is a separate list of keywords with page numbers (pointers) that tell you where to look, even if the book itself isn't organized by those keywords.
+
+***
+***
+## SQL Course 34: SQL Columnstore Index (Columnstore vs. Rowstore)
+
+### **1. Introduction to Columnstore Indexes**
+*   **Definition:** A special type of database index designed for **Big Data** and **data analytics**.
+*   **Core Concept:** While traditional indexes (**Rowstore**) organize data row-by-row, a **Columnstore** index splits the table into separate columns and stores the values of each column together.
+*   **Storage Logic:** In a Rowstore, a data page contains the entire information of a record. In a Columnstore, a data page (specifically a **Large Object Page or LOB**) contains only values from a single column.
+
+### **2. How SQL Builds a Columnstore Index**
+The process involves four main steps:
+1.  **Row Grouping:** SQL divides the rows into groups (typically around **1 million rows** per group) to optimize parallel processing.
+2.  **Column Segmentation:** Within each row group, SQL splits the data by columns, creating separate segments for each field.
+3.  **Data Compression:** This is the most critical step for performance. SQL uses techniques like **dictionaries** to map long, repeating values (e.g., "Active" or "Inactive") to smaller numeric values (e.g., 1 or 2), significantly reducing storage size.
+4.  **LOB Storage:** The compressed data is stored in specialized **LOB data pages**, which include a segment header (metadata), a dictionary page for mapping, and the data stream.
+
+### **3. Types of Columnstore Indexes**
+*   **Clustered Columnstore Index:** 
+    *   This is a complete makeover of the table.
+    *   It **fully replaces** the old row-based structure; the entire table is organized column-wise.
+    *   It automatically includes **all columns** from the original table.
+*   **Non-Clustered Columnstore Index:** 
+    *   Acts as a **companion** to an existing row-based table.
+    *   Both the original table and the index coexist separately.
+    *   Users can define **specific columns** to be included in the index rather than the whole table.
+*   **Constraint:** In SQL Server, you are generally allowed only **one** Columnstore index (either clustered or non-clustered) per table.
+
+### **4. Performance: Rowstore vs. Columnstore**
+*   **Data Retrieval:** When querying for an aggregation (e.g., `COUNT` of active customers), a Rowstore must read every column in every row, fetching a lot of unnecessary data. A Columnstore targets **only the specific column** needed, reading fewer data pages and performing much faster.
+*   **Storage Efficiency:** Columnstore indexes are far more efficient. In tests, a table that took 9 MB in a Heap or Rowstore structure was reduced to only **1 MB** when converted to a Columnstore.
+*   **Read vs. Write:** 
+    *   **Rowstore** is balanced for both reading and writing.
+    *   **Columnstore** is highly optimized for **reading (analytics)** but is **slower for writing** (inserts/updates) because of the complex compression and segmentation process.
+
+### **5. Comparison Table: OLTP vs. OLAP**
+| Feature | Rowstore Index | Columnstore Index |
+| :--- | :--- | :--- |
+| **System Type** | **OLTP** (Online Transactional Processing) | **OLAP** (Online Analytical Processing) |
+| **Best Use Case** | Banking, E-commerce (frequent transactions) | Data Warehousing, BI, Big Data Analytics |
+| **Storage Space** | Higher | Lower (due to compression) |
+| **I/O Efficiency** | Lower (retrieves unnecessary columns) | Higher (retrieves only needed columns) |
+
+### **6. Basic Syntax**
+*   **To create a Clustered Columnstore:**  
+    `CREATE CLUSTERED COLUMNSTORE INDEX IndexName ON TableName;`  
+    *(Note: You cannot specify column names for a clustered columnstore because it includes the entire table.)*
+*   **To create a Non-Clustered Columnstore:**  
+    `CREATE NONCLUSTERED COLUMNSTORE INDEX IndexName ON TableName(Column1, Column2);`
+
+***
+
+**Analogy for Understanding:**
+Think of a **Rowstore** like a **grocery store** where you have to buy a whole pre-packaged **meal kit** just to get the salt inside; you end up carrying a lot of heavy items you don't need. A **Columnstore** is like a **bulk-buy aisle** where all the salt is in one giant bin, all the sugar in another, and all the flour in a third; if you only need salt, you go straight to that bin and take exactly what you need without touching anything else.
