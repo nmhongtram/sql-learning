@@ -1574,3 +1574,45 @@ Think of a **CTAS Table** as a **frozen pizza from a grocery store**. It was pre
 
 ***
 ***
+## SQL Course 31: SQL Temporary Tables
+
+### 1. Definition and Lifetime
+*   **Definition:** Temporary tables (often called **temp tables**) are used to store intermediate results during a specific database session.
+*   **Lifetime:** Unlike permanent tables that stay in the database until explicitly dropped, temp tables are **automatically dropped** by the database once the session ends.
+*   **Session Concept:** A "session" refers to the period between connecting to the database and disconnecting from it (e.g., closing the SQL client or shutting down the PC).
+*   **Persistence:** Even if the system goes offline, permanent tables remain, but temporary tables are destroyed and the space is cleaned up for other users.
+
+### 2. Syntax and Storage
+*   **Syntax (T-SQL):** To create a temporary table, you use the `SELECT INTO` syntax but add a **hash symbol (#)** before the table name.
+    *   *Example:* `SELECT * INTO #orders FROM sales.orders;`.
+*   **Storage Location:** In SQL Server, these tables are not stored in your regular user database. Instead, they are located in a system database called **tempdb** under the "Temporary Tables" folder.
+*   **Naming:** You must include the `#` prefix every time you reference the table in a query (e.g., `SELECT * FROM #orders`).
+
+### 3. Practical Usage: The "Playground"
+*   **Data Manipulation:** Temp tables allow you to take a copy of real data and perform modifications (Delete, Update, Insert) without affecting the original source tables.
+*   **Intermediate Storage:** You can perform complex analysis on a temp table, and if you like the final result, you can then load that data back into a permanent table.
+*   **Safety:** They serve as a "playground" where mistakes do not matter because the table is not permanent.
+
+### 4. Why Use Temporary Tables? (Use Cases)
+*   **ETL Processes:** In data warehousing, they are used to store data during **Transformations**. You can extract data, clean it (handle nulls, remove duplicates), and filter it in a temp table before the final **Load** into the warehouse.
+*   **Automatic Maintenance:** The main advantage is the **automatic cleanup**. Developers do not need to write manual `DROP TABLE` commands for intermediate steps, as the database engine handles this at the end of the session.
+*   **Performance:** While CTEs are great for a single query, temp tables are useful when you need to run **multiple separate queries** against the same intermediate result set during one session.
+
+### 5. Execution Logic
+1.  **Query Execution:** The database engine identifies and runs the query.
+2.  **Metadata & Storage:** It stores the metadata in the system catalog and creates the physical table in the **temporary disk storage**.
+3.  **Access:** Multiple queries can fetch data from this temporary storage during the session.
+4.  **Cleanup:** Once the connection is lost, the engine understands there is no more need for the data and wipes the storage.
+
+### 6. Comparison Summary
+| Feature | Permanent Table | Temporary Table |
+| :--- | :--- | :--- |
+| **Duration** | Forever (until dropped) | One session |
+| **Cleanup** | Manual | Automatic by DB engine |
+| **Storage** | User Database | System Database (tempdb) |
+| **Prefix** | None | Hash symbol (#) |
+
+***
+
+**Analogy for Understanding:**
+Think of a **Permanent Table** like a **Physical Notebook** where you write things down in ink; it stays on your shelf until you throw it away. A **Temporary Table** is like a **Whiteboard** in a meeting room. You use it to work through complex ideas during your meeting (the session). Once the meeting is over and everyone leaves, the janitor (the database engine) comes in and wipes the board clean for the next group.
