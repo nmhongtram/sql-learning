@@ -1669,7 +1669,7 @@ Think of a **Subquery/CTE** as a **mental calculation** (gone as soon as you fin
 
 ***
 ***
-## SQL Course 33: SQL Indexes (Clustered vs. Non-clustered)
+## SQL Course 35: SQL Indexes (Clustered vs. Non-clustered)
 
 #### **1. Introduction to Indexes**
 *   **Definition:** An index is a **data structure** that provides quick access to rows, significantly improving the speed of data retrieval (queries).
@@ -1726,7 +1726,7 @@ Think of a **Clustered Index** like the **Table of Contents** at the front of a 
 
 ***
 ***
-## SQL Course 34: SQL Columnstore Index (Columnstore vs. Rowstore)
+## SQL Course 36: SQL Columnstore Index (Columnstore vs. Rowstore)
 
 ### **1. Introduction to Columnstore Indexes**
 *   **Definition:** A special type of database index designed for **Big Data** and **data analytics**.
